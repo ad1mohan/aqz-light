@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AQ-Z Light Controller</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #222;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ff4444;
+        }
+
+        .header p {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-bar.disconnected {
+            background: #1a1a1a;
+            color: #888;
+        }
+
+        .status-bar.connecting {
+            background: #1a1a00;
+            color: #ffaa00;
+        }
+
+        .status-bar.connected {
+            background: #001a00;
+            color: #44ff44;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #888;
+        }
+
+        .status-bar.connected .status-dot {
+            background: #44ff44;
+            box-shadow: 0 0 8px #44ff44;
+        }
+
+        .status-bar.connecting .status-dot {
+            background: #ffaa00;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .connect-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 24px;
+            transition: all 0.2s;
+        }
+
+        .connect-btn.connect {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: white;
+        }
+
+        .connect-btn.disconnect {
+            background: linear-gradient(135deg, #444, #222);
+            color: #aaa;
+        }
+
+        .connect-btn:active {
+            transform: scale(0.98);
+        }
+
+        .connect-btn:disabled {
+            opacity: 0.5;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            margin-top: 8px;
+        }
+
+        /* Color Sliders */
+        .slider-group {
+            background: #111;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .slider-container {
+            margin-bottom: 20px;
+        }
+
+        .slider-container:last-child {
+            margin-bottom: 0;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .slider-label {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slider-label .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .slider-value {
+            font-size: 20px;
+            font-weight: 700;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        #slider-w {
+            background: linear-gradient(to right, #333, #fff5e0);
+        }
+        #slider-w::-webkit-slider-thumb {
+            background: #fff5e0;
+        }
+
+        #slider-b {
+            background: linear-gradient(to right, #333, #4488ff);
+        }
+        #slider-b::-webkit-slider-thumb {
+            background: #4488ff;
+        }
+
+        #slider-g {
+            background: linear-gradient(to right, #333, #44cc44);
+        }
+        #slider-g::-webkit-slider-thumb {
+            background: #44cc44;
+        }
+
+        #slider-r {
+            background: linear-gradient(to right, #333, #ff4444);
+        }
+        #slider-r::-webkit-slider-thumb {
+            background: #ff4444;
+        }
+
+        /* Master brightness */
+        .master-slider {
+            background: #111;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        #slider-master {
+            background: linear-gradient(to right, #333, #ffaa00);
+        }
+        #slider-master::-webkit-slider-thumb {
+            background: #ffaa00;
+        }
+
+        /* Color Preview */
+        .color-preview {
+            height: 60px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+            transition: background-color 0.2s;
+        }
+
+        /* Presets */
+        .presets-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            padding: 14px 12px;
+            border: 1px solid #333;
+            border-radius: 12px;
+            background: #111;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s;
+        }
+
+        .preset-btn:active {
+            transform: scale(0.96);
+            background: #222;
+        }
+
+        .preset-btn .preset-colors {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 6px;
+            font-size: 11px;
+            color: #888;
+        }
+
+        .preset-btn.off-btn {
+            border-color: #442222;
+            background: #1a0000;
+        }
+
+        .preset-btn.full-btn {
+            border-color: #444422;
+            background: #1a1a00;
+        }
+
+        /* Quick buttons */
+        .quick-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quick-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #333;
+            border-radius: 10px;
+            background: #111;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .quick-btn:active {
+            background: #222;
+        }
+
+        .quick-btn.on {
+            border-color: #44ff44;
+            color: #44ff44;
+        }
+
+        .quick-btn.off {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        /* Log */
+        .log-section {
+            background: #111;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .log-content {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #44ff44;
+            max-height: 150px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .log-content .error {
+            color: #ff4444;
+        }
+
+        .log-content .info {
+            color: #4488ff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🐟 AQ-Z Controller</h1>
+        <p>Ledstar RGBW Z III — Custom Controller</p>
+    </div>
+
+    <div id="statusBar" class="status-bar disconnected">
+        <div class="status-dot"></div>
+        <span id="statusText">Disconnected</span>
+    </div>
+
+    <button id="connectBtn" class="connect-btn connect" onclick="toggleConnection()">
+        🔗 Connect to AQ-Z
+    </button>
+
+    <!-- Color Preview -->
+    <div id="colorPreview" class="color-preview" style="background-color: rgb(0,0,0);"></div>
+
+    <!-- Quick ON/OFF -->
+    <div class="quick-row">
+        <button class="quick-btn on" onclick="quickOn()">💡 ON (100%)</button>
+        <button class="quick-btn off" onclick="quickOff()">⭘ OFF</button>
+    </div>
+
+    <!-- Master Brightness -->
+    <div class="section-title">☀️ Master Brightness</div>
+    <div class="master-slider">
+        <div class="slider-header">
+            <span class="slider-label">Brightness</span>
+            <span id="master-value" class="slider-value">100%</span>
+        </div>
+        <input type="range" id="slider-master" min="0" max="100" value="100"
+               oninput="onMasterChange(this.value)">
+    </div>
+
+    <!-- WBGR Sliders -->
+    <div class="section-title">🎨 Color Channels</div>
+    <div class="slider-group">
+        <div class="slider-container">
+            <div class="slider-header">
+                <span class="slider-label">
+                    <span class="dot" style="background:#fff5e0;"></span> White
+                </span>
+                <span id="val-w" class="slider-value" style="color:#fff5e0;">0%</span>
+            </div>
+            <input type="range" id="slider-w" min="0" max="100" value="0"
+                   oninput="onSliderChange()">
+        </div>
+
+        <div class="slider-container">
+            <div class="slider-header">
+                <span class="slider-label">
+                    <span class="dot" style="background:#4488ff;"></span> Blue
+                </span>
+                <span id="val-b" class="slider-value" style="color:#4488ff;">0%</span>
+            </div>
+            <input type="range" id="slider-b" min="0" max="100" value="0"
+                   oninput="onSliderChange()">
+        </div>
+
+        <div class="slider-container">
+            <div class="slider-header">
+                <span class="slider-label">
+                    <span class="dot" style="background:#44cc44;"></span> Green
+                </span>
+                <span id="val-g" class="slider-value" style="color:#44cc44;">0%</span>
+            </div>
+            <input type="range" id="slider-g" min="0" max="100" value="0"
+                   oninput="onSliderChange()">
+        </div>
+
+        <div class="slider-container">
+            <div class="slider-header">
+                <span class="slider-label">
+                    <span class="dot" style="background:#ff4444;"></span> Red
+                </span>
+                <span id="val-r" class="slider-value" style="color:#ff4444;">0%</span>
+            </div>
+            <input type="range" id="slider-r" min="0" max="100" value="0"
+                   oninput="onSliderChange()">
+        </div>
+    </div>
+
+    <!-- Presets -->
+    <div class="section-title">🌿 Presets</div>
+    <div class="presets-grid">
+        <button class="preset-btn full-btn" onclick="applyPreset(100,100,100,100)">
+            ⭐ Fully ON
+            <div class="preset-colors">W100 B100 G100 R100</div>
+        </button>
+        <button class="preset-btn" onclick="applyPreset(90,100,100,90)">
+            🌿 Green Plant
+            <div class="preset-colors">W90 B100 G100 R90</div>
+        </button>
+        <button class="preset-btn" onclick="applyPreset(100,90,90,100)">
+            🍁 Red Plant
+            <div class="preset-colors">W100 B90 G90 R100</div>
+        </button>
+        <button class="preset-btn" onclick="applyPreset(90,90,90,75)">
+            🌱 Moss
+            <div class="preset-colors">W90 B90 G90 R75</div>
+        </button>
+        <button class="preset-btn" onclick="applyPreset(100,100,80,100)">
+            🪴 Bucephalandras
+            <div class="preset-colors">W100 B100 G80 R100</div>
+        </button>
+        <button class="preset-btn off-btn" onclick="applyPreset(0,0,0,0)">
+            🌙 OFF
+            <div class="preset-colors">All channels off</div>
+        </button>
+    </div>
+
+    <!-- Custom Presets -->
+    <div class="section-title">💾 Custom Presets</div>
+    <div class="quick-row">
+        <button class="quick-btn" onclick="saveCustomPreset(1)">Save Slot 1</button>
+        <button class="quick-btn" onclick="saveCustomPreset(2)">Save Slot 2</button>
+        <button class="quick-btn" onclick="saveCustomPreset(3)">Save Slot 3</button>
+    </div>
+    <div class="quick-row">
+        <button class="quick-btn" onclick="loadCustomPreset(1)" id="custom1">Slot 1: Empty</button>
+        <button class="quick-btn" onclick="loadCustomPreset(2)" id="custom2">Slot 2: Empty</button>
+        <button class="quick-btn" onclick="loadCustomPreset(3)" id="custom3">Slot 3: Empty</button>
+    </div>
+
+    <!-- Log -->
+    <div class="section-title">📋 Command Log</div>
+    <div class="log-section">
+        <div id="log" class="log-content">Ready. Connect to your light to begin.\n</div>
+    </div>
+
+    <script>
+        // ==========================================
+        // BLE Configuration
+        // ==========================================
+        const SERVICE_UUID = 0xFFF0;
+        const WRITE_CHAR_UUID = 0xFFF2;
+        const NOTIFY_CHAR_UUID = 0xFFF1;
+        const HEADER = 0x55;
+        const CMD_REALTIME = 0x10;
+        const CMD_SCENE1 = 0x11;
+
+        // ==========================================
+        // State
+        // ==========================================
+        let bleDevice = null;
+        let bleServer = null;
+        let writeCharacteristic = null;
+        let notifyCharacteristic = null;
+        let isConnected = false;
+        let masterBrightness = 100;
+        let sendTimeout = null;
+
+        // Channel values (0-100)
+        let channels = { w: 0, b: 0, g: 0, r: 0 };
+
+        // ==========================================
+        // Connection
+        // ==========================================
+        async function toggleConnection() {
+            if (isConnected) {
+                disconnect();
+            } else {
+                await connect();
+            }
+        }
+
+        async function connect() {
+            try {
+                updateStatus('connecting', 'Searching for AQ-Z...');
+                log('Scanning for BLE devices...', 'info');
+
+                bleDevice = await navigator.bluetooth.requestDevice({
+                    filters: [
+                        { namePrefix: 'AQ' }
+                    ],
+                    optionalServices: [SERVICE_UUID]
+                });
+
+                log(`Found: ${bleDevice.name} (${bleDevice.id})`, 'info');
+                updateStatus('connecting', 'Connecting...');
+
+                bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
+
+                bleServer = await bleDevice.gatt.connect();
+                log('GATT server connected', 'info');
+
+                const service = await bleServer.getPrimaryService(SERVICE_UUID);
+                log('Service 0xFFF0 found', 'info');
+
+                writeCharacteristic = await service.getCharacteristic(WRITE_CHAR_UUID);
+                log('Write characteristic 0xFFF2 found ✓', 'info');
+
+                try {
+                    notifyCharacteristic = await service.getCharacteristic(NOTIFY_CHAR_UUID);
+                    await notifyCharacteristic.startNotifications();
+                    notifyCharacteristic.addEventListener('characteristicvaluechanged', onNotification);
+                    log('Notify characteristic 0xFFF1 subscribed ✓', 'info');
+                } catch (e) {
+                    log('Notify setup skipped (non-critical)', 'info');
+                }
+
+                isConnected = true;
+                updateStatus('connected', `Connected: ${bleDevice.name}`);
+                updateConnectButton(true);
+                log('🎉 Ready to control your light!', 'info');
+
+            } catch (error) {
+                log(`Connection failed: ${error.message}`, 'error');
+                updateStatus('disconnected', 'Connection failed');
+                updateConnectButton(false);
+            }
+        }
+
+        function disconnect() {
+            if (bleDevice && bleDevice.gatt.connected) {
+                bleDevice.gatt.disconnect();
+            }
+            onDisconnected();
+        }
+
+        function onDisconnected() {
+            isConnected = false;
+            writeCharacteristic = null;
+            notifyCharacteristic = null;
+            updateStatus('disconnected', 'Disconnected');
+            updateConnectButton(false);
+            log('Disconnected from light', 'info');
+        }
+
+        function onNotification(event) {
+            const value = new Uint8Array(event.target.value.buffer);
+            const hex = Array.from(value).map(b => b.toString(16).padStart(2, '0')).join(' ');
+            log(`← Received: ${hex}`, 'info');
+        }
+
+        // ==========================================
+        // Command Building
+        // ==========================================
+        function buildRealtimeCommand(w, b, g, r) {
+            const now = new Date();
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+
+            // Apply master brightness
+            const mw = Math.round(w * masterBrightness / 100);
+            const mb = Math.round(b * masterBrightness / 100);
+            const mg = Math.round(g * masterBrightness / 100);
+            const mr = Math.round(r * masterBrightness / 100);
+
+            const payload = [hour, minute, mw, mb, mg, mr, 0x01];
+            const length = payload.length + 3; // +3 for header, length, function code... +1 for checksum
+            // Total packet: header(1) + length(1) + function(1) + payload(7) + checksum(1) = 11
+
+            const packet = new Uint8Array(length + 1);
+            packet[0] = HEADER;          // 0x55
+            packet[1] = length + 1;      // total length including checksum
+            packet[2] = CMD_REALTIME;    // 0x10
+
+            for (let i = 0; i < payload.length; i++) {
+                packet[3 + i] = payload[i];
+            }
+
+            // Checksum: sum of all bytes & 0xFF
+            let sum = 0;
+            for (let i = 0; i < packet.length - 1; i++) {
+                sum += packet[i];
+            }
+            packet[packet.length - 1] = sum & 0xFF;
+
+            return packet;
+        }
+
+        async function sendCommand(packet) {
+            if (!isConnected || !writeCharacteristic) {
+                log('Not connected!', 'error');
+                return;
+            }
+
+            try {
+                const hex = Array.from(packet).map(b => b.toString(16).padStart(2, '0')).join(' ');
+                log(`→ Sent: ${hex}`);
+
+                await writeCharacteristic.writeValueWithoutResponse(packet.buffer);
+            } catch (error) {
+                log(`Send failed: ${error.message}`, 'error');
+
+                // Try with response if without response fails
+                try {
+                    await writeCharacteristic.writeValueWithResponse(packet.buffer);
+                } catch (e) {
+                    log(`Retry failed: ${e.message}`, 'error');
+                }
+            }
+        }
+
+        // ==========================================
+        // Slider Controls
+        // ==========================================
+        function onSliderChange() {
+            channels.w = parseInt(document.getElementById('slider-w').value);
+            channels.b = parseInt(document.getElementById('slider-b').value);
+            channels.g = parseInt(document.getElementById('slider-g').value);
+            channels.r = parseInt(document.getElementById('slider-r').value);
+
+            updateDisplay();
+            throttledSend();
+        }
+
+        function onMasterChange(val) {
+            masterBrightness = parseInt(val);
+            document.getElementById('master-value').textContent = masterBrightness + '%';
+            throttledSend();
+        }
+
+        function throttledSend() {
+            if (sendTimeout) clearTimeout(sendTimeout);
+            sendTimeout = setTimeout(() => {
+                const packet = buildRealtimeCommand(channels.w, channels.b, channels.g, channels.r);
+                sendCommand(packet);
+            }, 50); // 50ms throttle for smooth sliding
+        }
+
+        function updateDisplay() {
+            document.getElementById('val-w').textContent = channels.w + '%';
+            document.getElementById('val-b').textContent = channels.b + '%';
+            document.getElementById('val-g').textContent = channels.g + '%';
+            document.getElementById('val-r').textContent = channels.r + '%';
+
+            // Update color preview
+            const mw = channels.w * masterBrightness / 100;
+            const mb = channels.b * masterBrightness / 100;
+            const mg = channels.g * masterBrightness / 100;
+            const mr = channels.r * masterBrightness / 100;
+
+            // Mix RGB for preview (white adds to all channels)
+            const previewR = Math.min(255, (mr / 100) * 255 + (mw / 100) * 200);
+            const previewG = Math.min(255, (mg / 100) * 255 + (mw / 100) * 180);
+            const previewB = Math.min(255, (mb / 100) * 255 + (mw / 100) * 160);
+
+            document.getElementById('colorPreview').style.backgroundColor =
+                `rgb(${Math.round(previewR)}, ${Math.round(previewG)}, ${Math.round(previewB)})`;
+        }
+
+        // ==========================================
+        // Presets
+        // ==========================================
+        function applyPreset(w, b, g, r) {
+            channels.w = w;
+            channels.b = b;
+            channels.g = g;
+            channels.r = r;
+
+            document.getElementById('slider-w').value = w;
+            document.getElementById('slider-b').value = b;
+            document.getElementById('slider-g').value = g;
+            document.getElementById('slider-r').value = r;
+
+            updateDisplay();
+
+            const packet = buildRealtimeCommand(w, b, g, r);
+            sendCommand(packet);
+
+            log(`Preset applied: W=${w} B=${b} G=${g} R=${r}`, 'info');
+        }
+
+        function quickOn() {
+            masterBrightness = 100;
+            document.getElementById('slider-master').value = 100;
+            document.getElementById('master-value').textContent = '100%';
+            applyPreset(100, 100, 100, 100);
+        }
+
+        function quickOff() {
+            applyPreset(0, 0, 0, 0);
+        }
+
+        // ==========================================
+        // Custom Presets (saved in localStorage)
+        // ==========================================
+        function saveCustomPreset(slot) {
+            const preset = {
+                w: channels.w,
+                b: channels.b,
+                g: channels.g,
+                r: channels.r,
+                master: masterBrightness
+            };
+            localStorage.setItem(`aqz_preset_${slot}`, JSON.stringify(preset));
+            document.getElementById(`custom${slot}`).textContent =
+                `Slot ${slot}: W${preset.w} B${preset.b} G${preset.g} R${preset.r}`;
+            log(`Saved custom preset ${slot}: W=${preset.w} B=${preset.b} G=${preset.g} R=${preset.r}`, 'info');
+        }
+
+        function loadCustomPreset(slot) {
+            const data = localStorage.getItem(`aqz_preset_${slot}`);
+            if (!data) {
+                log(`Slot ${slot} is empty`, 'error');
+                return;
+            }
+            const preset = JSON.parse(data);
+            masterBrightness = preset.master || 100;
+            document.getElementById('slider-master').value = masterBrightness;
+            document.getElementById('master-value').textContent = masterBrightness + '%';
+            applyPreset(preset.w, preset.b, preset.g, preset.r);
+        }
+
+        function loadSavedPresets() {
+            for (let slot = 1; slot <= 3; slot++) {
+                const data = localStorage.getItem(`aqz_preset_${slot}`);
+                if (data) {
+                    const preset = JSON.parse(data);
+                    document.getElementById(`custom${slot}`).textContent =
+                        `Slot ${slot}: W${preset.w} B${preset.b} G${preset.g} R${preset.r}`;
+                }
+            }
+        }
+
+        // ==========================================
+        // UI Helpers
+        // ==========================================
+        function updateStatus(state, text) {
+            const bar = document.getElementById('statusBar');
+            bar.className = `status-bar ${state}`;
+            document.getElementById('statusText').textContent = text;
+        }
+
+        function updateConnectButton(connected) {
+            const btn = document.getElementById('connectBtn');
+            if (connected) {
+                btn.className = 'connect-btn disconnect';
+                btn.textContent = '🔌 Disconnect';
+            } else {
+                btn.className = 'connect-btn connect';
+                btn.textContent = '🔗 Connect to AQ-Z';
+            }
+        }
+
+        function log(message, type = '') {
+            const logEl = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            const cls = type ? ` class="${type}"` : '';
+            logEl.innerHTML += `<span${cls}>[${time}] ${message}\n</span>`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // ==========================================
+        // Check Web Bluetooth Support
+        // ==========================================
+        function checkBluetooth() {
+            if (!navigator.bluetooth) {
+                log('❌ Web Bluetooth NOT supported in this browser!', 'error');
+                log('Use Chrome on Android or Chrome on laptop', 'error');
+                log('Must be HTTPS or localhost', 'error');
+                document.getElementById('connectBtn').disabled = true;
+                return false;
+            }
+            log('✅ Web Bluetooth is supported', 'info');
+            return true;
+        }
+
+        // ==========================================
+        // Init
+        // ==========================================
+        window.addEventListener('load', () => {
+            checkBluetooth();
+            loadSavedPresets();
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>
