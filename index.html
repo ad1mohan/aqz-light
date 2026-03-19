@@ -145,7 +145,7 @@
 <body>
 
 <div class="header">
-    <h1>🐟 AQ-Z Controller v1.2</h1>
+    <h1>🐟 AQ-Z Controller v1.3</h1>
     <p>Ledstar RGBW Z III</p>
 </div>
 
@@ -449,36 +449,79 @@ function buildScene2Cmd(wArr, bArr, gArr, rArr) {
 }
 
 async function sendCommand(packet) {
-    if (!isConnected || !writeCharacteristic) { log('Not connected!', 'error'); return; }
-    const hex = Array.from(packet).map(b => b.toString(16).padStart(2,'0')).join(' ');
+    if (!isConnected || !writeCharacteristic) { 
+        log('Not connected!', 'error'); 
+        return; 
+    }
+    
+    const hex = Array.from(packet).map(b => 
+        b.toString(16).padStart(2,'0')).join(' ');
+    
     try {
-        // For large packets (Scene2 = 246 bytes), may need chunked writing
         if (packet.length > 20) {
-            // Try full write first (works if MTU negotiated)
+            // Large packet — try multiple approaches
+            
+            // Method 1: writeValueWithoutResponse (often works for large packets)
             try {
-                await writeCharacteristic.writeValueWithResponse(packet);
-                log(`→ Sent ${packet.length}B: ${hex.substring(0, 50)}...`, 'info');
+                await writeCharacteristic.writeValueWithoutResponse(packet.buffer);
+                log(`→ Sent ${packet.length}B: ${hex.substring(0, 60)}...`, 'info');
                 return;
-            } catch(e) {
-                log(`Full write failed, trying chunks...`, 'info');
-                // Chunk into 20-byte segments
-                for (let offset = 0; offset < packet.length; offset += 20) {
-                    const chunk = packet.slice(offset, Math.min(offset + 20, packet.length));
-                    await writeCharacteristic.writeValueWithoutResponse(chunk);
-                    await new Promise(r => setTimeout(r, 30));
-                }
-                log(`→ Sent ${packet.length}B chunked: ${hex.substring(0, 50)}...`, 'info');
-                return;
+            } catch(e1) {
+                log(`NoResponse write failed: ${e1.message}`, 'error');
             }
+            
+            // Method 2: writeValueWithResponse
+            try {
+                await writeCharacteristic.writeValueWithResponse(packet.buffer);
+                log(`→ Sent ${packet.length}B: ${hex.substring(0, 60)}...`, 'info');
+                return;
+            } catch(e2) {
+                log(`Response write failed: ${e2.message}`, 'error');
+            }
+            
+            // Method 3: writeValue (legacy)
+            try {
+                await writeCharacteristic.writeValue(packet.buffer);
+                log(`→ Sent ${packet.length}B: ${hex.substring(0, 60)}...`, 'info');
+                return;
+            } catch(e3) {
+                log(`Legacy write failed: ${e3.message}`, 'error');
+            }
+            
+            // Method 4: Chunked write (last resort)
+            // The light may NOT support this - but worth trying
+            log('Trying chunked write...', 'info');
+            const chunkSize = 20;
+            for (let offset = 0; offset < packet.length; offset += chunkSize) {
+                const end = Math.min(offset + chunkSize, packet.length);
+                const chunk = packet.slice(offset, end);
+                await writeCharacteristic.writeValueWithoutResponse(chunk.buffer);
+                await new Promise(r => setTimeout(r, 50));
+            }
+            log(`→ Sent ${packet.length}B in chunks`, 'info');
+            return;
+            
         }
-        await writeCharacteristic.writeValueWithResponse(packet);
+        
+        // Normal sized packet (≤20 bytes)
+        await writeCharacteristic.writeValueWithResponse(packet.buffer);
         log(`→ ${hex}`);
+        
     } catch (e1) {
-        try { await writeCharacteristic.writeValueWithoutResponse(packet); log(`→ ${hex}`); }
-        catch (e2) { try { await writeCharacteristic.writeValue(packet); log(`→ ${hex}`); }
-        catch (e3) { log(`Send failed: ${e3.message}`, 'error'); } }
+        try { 
+            await writeCharacteristic.writeValueWithoutResponse(packet.buffer); 
+            log(`→ ${hex}`); 
+        } catch (e2) { 
+            try { 
+                await writeCharacteristic.writeValue(packet.buffer); 
+                log(`→ ${hex}`); 
+            } catch (e3) { 
+                log(`All send methods failed: ${e3.message}`, 'error'); 
+            } 
+        }
     }
 }
+
 
 // ==========================================
 // TABS
