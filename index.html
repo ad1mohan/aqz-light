@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -84,8 +85,15 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
         }
 
         .connect-btn {
@@ -190,12 +198,13 @@
             border-radius: 50%;
             cursor: pointer;
             border: 3px solid #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
         }
 
         #slider-w {
             background: linear-gradient(to right, #333, #fff5e0);
         }
+
         #slider-w::-webkit-slider-thumb {
             background: #fff5e0;
         }
@@ -203,6 +212,7 @@
         #slider-b {
             background: linear-gradient(to right, #333, #4488ff);
         }
+
         #slider-b::-webkit-slider-thumb {
             background: #4488ff;
         }
@@ -210,6 +220,7 @@
         #slider-g {
             background: linear-gradient(to right, #333, #44cc44);
         }
+
         #slider-g::-webkit-slider-thumb {
             background: #44cc44;
         }
@@ -217,6 +228,7 @@
         #slider-r {
             background: linear-gradient(to right, #333, #ff4444);
         }
+
         #slider-r::-webkit-slider-thumb {
             background: #ff4444;
         }
@@ -232,6 +244,7 @@
         #slider-master {
             background: linear-gradient(to right, #333, #ffaa00);
         }
+
         #slider-master::-webkit-slider-thumb {
             background: #ffaa00;
         }
@@ -351,6 +364,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="header">
@@ -383,8 +397,7 @@
             <span class="slider-label">Brightness</span>
             <span id="master-value" class="slider-value">100%</span>
         </div>
-        <input type="range" id="slider-master" min="0" max="100" value="100"
-               oninput="onMasterChange(this.value)">
+        <input type="range" id="slider-master" min="0" max="100" value="100" oninput="onMasterChange(this.value)">
     </div>
 
     <!-- WBGR Sliders -->
@@ -397,8 +410,7 @@
                 </span>
                 <span id="val-w" class="slider-value" style="color:#fff5e0;">0%</span>
             </div>
-            <input type="range" id="slider-w" min="0" max="100" value="0"
-                   oninput="onSliderChange()">
+            <input type="range" id="slider-w" min="0" max="100" value="0" oninput="onSliderChange()">
         </div>
 
         <div class="slider-container">
@@ -408,8 +420,7 @@
                 </span>
                 <span id="val-b" class="slider-value" style="color:#4488ff;">0%</span>
             </div>
-            <input type="range" id="slider-b" min="0" max="100" value="0"
-                   oninput="onSliderChange()">
+            <input type="range" id="slider-b" min="0" max="100" value="0" oninput="onSliderChange()">
         </div>
 
         <div class="slider-container">
@@ -419,8 +430,7 @@
                 </span>
                 <span id="val-g" class="slider-value" style="color:#44cc44;">0%</span>
             </div>
-            <input type="range" id="slider-g" min="0" max="100" value="0"
-                   oninput="onSliderChange()">
+            <input type="range" id="slider-g" min="0" max="100" value="0" oninput="onSliderChange()">
         </div>
 
         <div class="slider-container">
@@ -430,8 +440,7 @@
                 </span>
                 <span id="val-r" class="slider-value" style="color:#ff4444;">0%</span>
             </div>
-            <input type="range" id="slider-r" min="0" max="100" value="0"
-                   oninput="onSliderChange()">
+            <input type="range" id="slider-r" min="0" max="100" value="0" oninput="onSliderChange()">
         </div>
     </div>
 
@@ -632,21 +641,34 @@
             }
 
             try {
-                const hex = Array.from(packet).map(b => b.toString(16).padStart(2, '0')).join(' ');
+                const hex = Array.from(packet).map(b =>
+                    b.toString(16).padStart(2, '0')).join(' ');
                 log(`→ Sent: ${hex}`);
 
-                await writeCharacteristic.writeValueWithoutResponse(packet.buffer);
-            } catch (error) {
-                log(`Send failed: ${error.message}`, 'error');
+                // Method 1: Write WITH response (matches nRF Connect "Request" mode)
+                await writeCharacteristic.writeValueWithResponse(packet);
 
-                // Try with response if without response fails
+            } catch (error) {
+                log(`Method 1 failed: ${error.message}, trying method 2...`, 'error');
+
                 try {
-                    await writeCharacteristic.writeValueWithResponse(packet.buffer);
-                } catch (e) {
-                    log(`Retry failed: ${e.message}`, 'error');
+                    // Method 2: Write WITHOUT response
+                    await writeCharacteristic.writeValueWithoutResponse(packet);
+                    log('Method 2 (no response) succeeded', 'info');
+                } catch (e2) {
+                    log(`Method 2 failed: ${e2.message}, trying method 3...`, 'error');
+
+                    try {
+                        // Method 3: Deprecated but widely supported writeValue
+                        await writeCharacteristic.writeValue(packet);
+                        log('Method 3 (legacy) succeeded', 'info');
+                    } catch (e3) {
+                        log(`All methods failed: ${e3.message}`, 'error');
+                    }
                 }
             }
         }
+
 
         // ==========================================
         // Slider Controls
@@ -823,4 +845,5 @@
         });
     </script>
 </body>
+
 </html>
