@@ -145,7 +145,7 @@
 <body>
 
 <div class="header">
-    <h1>🐟 AQ-Z Controller v1.3</h1>
+    <h1>🐟 AQ-Z Controller v4</h1>
     <p>Ledstar RGBW Z III</p>
 </div>
 
@@ -459,66 +459,73 @@ async function sendCommand(packet) {
     
     try {
         if (packet.length > 20) {
-            // Large packet — try multiple approaches
+            // Large packet (Pro Schedule = 246 bytes)
             
-            // Method 1: writeValueWithoutResponse (often works for large packets)
-            try {
-                await writeCharacteristic.writeValueWithoutResponse(packet.buffer);
-                log(`→ Sent ${packet.length}B: ${hex.substring(0, 60)}...`, 'info');
-                return;
-            } catch(e1) {
-                log(`NoResponse write failed: ${e1.message}`, 'error');
-            }
-            
-            // Method 2: writeValueWithResponse
+            // Method 1: writeValueWithResponse (gets confirmation from light)
             try {
                 await writeCharacteristic.writeValueWithResponse(packet.buffer);
-                log(`→ Sent ${packet.length}B: ${hex.substring(0, 60)}...`, 'info');
+                log(`→ Sent ${packet.length}B (confirmed): ${hex.substring(0, 60)}...`, 'info');
                 return;
-            } catch(e2) {
-                log(`Response write failed: ${e2.message}`, 'error');
+            } catch(e1) {
+                log(`WithResponse failed: ${e1.message}, trying without...`, 'info');
             }
             
-            // Method 3: writeValue (legacy)
+            // Method 2: writeValueWithoutResponse
+            try {
+                await writeCharacteristic.writeValueWithoutResponse(packet.buffer);
+                log(`→ Sent ${packet.length}B (no confirm): ${hex.substring(0, 60)}...`, 'info');
+                return;
+            } catch(e2) {
+                log(`WithoutResponse failed: ${e2.message}, trying legacy...`, 'info');
+            }
+            
+            // Method 3: writeValue (legacy/deprecated but widely supported)
             try {
                 await writeCharacteristic.writeValue(packet.buffer);
-                log(`→ Sent ${packet.length}B: ${hex.substring(0, 60)}...`, 'info');
+                log(`→ Sent ${packet.length}B (legacy): ${hex.substring(0, 60)}...`, 'info');
                 return;
             } catch(e3) {
-                log(`Legacy write failed: ${e3.message}`, 'error');
+                log(`Legacy failed: ${e3.message}, trying chunks...`, 'info');
             }
             
             // Method 4: Chunked write (last resort)
-            // The light may NOT support this - but worth trying
             log('Trying chunked write...', 'info');
             const chunkSize = 20;
             for (let offset = 0; offset < packet.length; offset += chunkSize) {
                 const end = Math.min(offset + chunkSize, packet.length);
                 const chunk = packet.slice(offset, end);
-                await writeCharacteristic.writeValueWithoutResponse(chunk.buffer);
+                try {
+                    await writeCharacteristic.writeValueWithoutResponse(chunk.buffer);
+                } catch(ec) {
+                    await writeCharacteristic.writeValue(chunk.buffer);
+                }
                 await new Promise(r => setTimeout(r, 50));
             }
-            log(`→ Sent ${packet.length}B in chunks`, 'info');
+            log(`→ Sent ${packet.length}B in ${Math.ceil(packet.length/chunkSize)} chunks`, 'info');
             return;
-            
         }
         
         // Normal sized packet (≤20 bytes)
-        await writeCharacteristic.writeValueWithResponse(packet.buffer);
-        log(`→ ${hex}`);
-        
-    } catch (e1) {
-        try { 
-            await writeCharacteristic.writeValueWithoutResponse(packet.buffer); 
-            log(`→ ${hex}`); 
-        } catch (e2) { 
-            try { 
-                await writeCharacteristic.writeValue(packet.buffer); 
-                log(`→ ${hex}`); 
-            } catch (e3) { 
-                log(`All send methods failed: ${e3.message}`, 'error'); 
-            } 
+        // Try writeValueWithResponse first (gets ← confirmation)
+        try {
+            await writeCharacteristic.writeValueWithResponse(packet.buffer);
+            log(`→ ${hex}`);
+            return;
+        } catch(e1) {
+            // Fallback to without response
+            try {
+                await writeCharacteristic.writeValueWithoutResponse(packet.buffer);
+                log(`→ ${hex}`);
+                return;
+            } catch(e2) {
+                // Final fallback to legacy
+                await writeCharacteristic.writeValue(packet.buffer);
+                log(`→ ${hex}`);
+            }
         }
+        
+    } catch (e) {
+        log(`All send methods failed: ${e.message}`, 'error');
     }
 }
 
