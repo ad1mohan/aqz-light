@@ -1,398 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>AQ-Z Light Controller</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0a0a0a;
-            color: #ffffff;
-            min-height: 100vh;
-            padding: 16px;
-            padding-bottom: 100px;
+            background: #0a0a0a; color: #fff;
+            min-height: 100vh; padding: 16px; padding-bottom: 120px;
         }
 
-        .header {
-            text-align: center;
-            padding: 20px 0;
-            border-bottom: 1px solid #222;
-            margin-bottom: 20px;
-        }
+        .header { text-align: center; padding: 16px 0; border-bottom: 1px solid #222; margin-bottom: 16px; }
+        .header h1 { font-size: 22px; font-weight: 700; color: #ff4444; }
+        .header p { font-size: 11px; color: #666; margin-top: 2px; }
 
-        .header h1 {
-            font-size: 24px;
-            font-weight: 700;
-            color: #ff4444;
-        }
+        /* Tabs */
+        .tabs { display: flex; gap: 0; margin-bottom: 16px; border-radius: 12px; overflow: hidden; border: 1px solid #333; }
+        .tab { flex: 1; padding: 12px 8px; text-align: center; font-size: 13px; font-weight: 600;
+               background: #111; color: #888; cursor: pointer; border: none; transition: all 0.2s; }
+        .tab.active { background: #ff4444; color: #fff; }
+        .tab:active { opacity: 0.8; }
 
-        .header p {
-            font-size: 12px;
-            color: #666;
-            margin-top: 4px;
-        }
+        /* Status */
+        .status-bar { display: flex; align-items: center; justify-content: center; gap: 8px;
+                      padding: 10px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; font-weight: 600; }
+        .status-bar.disconnected { background: #1a1a1a; color: #888; }
+        .status-bar.connecting { background: #1a1a00; color: #ffaa00; }
+        .status-bar.connected { background: #001a00; color: #44ff44; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #888; }
+        .status-bar.connected .status-dot { background: #44ff44; box-shadow: 0 0 6px #44ff44; }
+        .status-bar.connecting .status-dot { background: #ffaa00; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-        .status-bar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            font-weight: 600;
-        }
+        .connect-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 16px;
+                       font-weight: 700; cursor: pointer; margin-bottom: 16px; transition: all 0.2s; }
+        .connect-btn.connect { background: linear-gradient(135deg, #ff4444, #cc0000); color: white; }
+        .connect-btn.disconnect { background: linear-gradient(135deg, #444, #222); color: #aaa; }
+        .connect-btn:active { transform: scale(0.98); }
+        .connect-btn:disabled { opacity: 0.5; }
 
-        .status-bar.disconnected {
-            background: #1a1a1a;
-            color: #888;
-        }
+        /* Panel */
+        .panel { display: none; }
+        .panel.active { display: block; }
 
-        .status-bar.connecting {
-            background: #1a1a00;
-            color: #ffaa00;
-        }
-
-        .status-bar.connected {
-            background: #001a00;
-            color: #44ff44;
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #888;
-        }
-
-        .status-bar.connected .status-dot {
-            background: #44ff44;
-            box-shadow: 0 0 8px #44ff44;
-        }
-
-        .status-bar.connecting .status-dot {
-            background: #ffaa00;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.3;
-            }
-        }
-
-        .connect-btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-bottom: 24px;
-            transition: all 0.2s;
-        }
-
-        .connect-btn.connect {
-            background: linear-gradient(135deg, #ff4444, #cc0000);
-            color: white;
-        }
-
-        .connect-btn.disconnect {
-            background: linear-gradient(135deg, #444, #222);
-            color: #aaa;
-        }
-
-        .connect-btn:active {
-            transform: scale(0.98);
-        }
-
-        .connect-btn:disabled {
-            opacity: 0.5;
-        }
-
-        .section-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
-            margin-top: 8px;
-        }
-
-        /* Color Sliders */
-        .slider-group {
-            background: #111;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .slider-container {
-            margin-bottom: 20px;
-        }
-
-        .slider-container:last-child {
-            margin-bottom: 0;
-        }
-
-        .slider-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .slider-label {
-            font-size: 16px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .slider-label .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
-        .slider-value {
-            font-size: 20px;
-            font-weight: 700;
-            min-width: 50px;
-            text-align: right;
-        }
-
-        input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 8px;
-            border-radius: 4px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 3px solid #fff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-        }
-
-        #slider-w {
-            background: linear-gradient(to right, #333, #fff5e0);
-        }
-
-        #slider-w::-webkit-slider-thumb {
-            background: #fff5e0;
-        }
-
-        #slider-b {
-            background: linear-gradient(to right, #333, #4488ff);
-        }
-
-        #slider-b::-webkit-slider-thumb {
-            background: #4488ff;
-        }
-
-        #slider-g {
-            background: linear-gradient(to right, #333, #44cc44);
-        }
-
-        #slider-g::-webkit-slider-thumb {
-            background: #44cc44;
-        }
-
-        #slider-r {
-            background: linear-gradient(to right, #333, #ff4444);
-        }
-
-        #slider-r::-webkit-slider-thumb {
-            background: #ff4444;
-        }
-
-        /* Master brightness */
-        .master-slider {
-            background: #111;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        #slider-master {
-            background: linear-gradient(to right, #333, #ffaa00);
-        }
-
-        #slider-master::-webkit-slider-thumb {
-            background: #ffaa00;
-        }
+        .section-title { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase;
+                         letter-spacing: 1px; margin-bottom: 10px; margin-top: 12px; }
 
         /* Color Preview */
-        .color-preview {
-            height: 60px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #333;
-            transition: background-color 0.2s;
-        }
+        .color-preview { height: 50px; border-radius: 10px; margin-bottom: 16px; border: 1px solid #333; transition: background-color 0.2s; }
+
+        /* Quick ON/OFF */
+        .quick-row { display: flex; gap: 8px; margin-bottom: 16px; }
+        .quick-btn { flex: 1; padding: 10px; border: 1px solid #333; border-radius: 10px; background: #111;
+                     color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
+        .quick-btn:active { background: #222; }
+        .quick-btn.on { border-color: #44ff44; color: #44ff44; }
+        .quick-btn.off { border-color: #ff4444; color: #ff4444; }
+
+        /* Sliders */
+        .slider-group { background: #111; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+        .slider-container { margin-bottom: 16px; }
+        .slider-container:last-child { margin-bottom: 0; }
+        .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .slider-label { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .slider-label .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .slider-value { font-size: 18px; font-weight: 700; min-width: 45px; text-align: right; }
+
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; outline: none; cursor: pointer; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%;
+                                                     cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.5); }
+
+        #slider-w { background: linear-gradient(to right, #333, #fff5e0); }
+        #slider-w::-webkit-slider-thumb { background: #fff5e0; }
+        #slider-b { background: linear-gradient(to right, #333, #4488ff); }
+        #slider-b::-webkit-slider-thumb { background: #4488ff; }
+        #slider-g { background: linear-gradient(to right, #333, #44cc44); }
+        #slider-g::-webkit-slider-thumb { background: #44cc44; }
+        #slider-r { background: linear-gradient(to right, #333, #ff4444); }
+        #slider-r::-webkit-slider-thumb { background: #ff4444; }
+        #slider-master { background: linear-gradient(to right, #333, #ffaa00); }
+        #slider-master::-webkit-slider-thumb { background: #ffaa00; }
 
         /* Presets */
-        .presets-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+        .presets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+        .preset-btn { padding: 12px 10px; border: 1px solid #333; border-radius: 10px; background: #111;
+                      color: #fff; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; }
+        .preset-btn:active { transform: scale(0.96); background: #222; }
+        .preset-btn .preset-colors { display: flex; justify-content: center; gap: 3px; margin-top: 4px; font-size: 10px; color: #888; }
+        .preset-btn.off-btn { border-color: #442222; background: #1a0000; }
+        .preset-btn.full-btn { border-color: #444422; background: #1a1a00; }
 
-        .preset-btn {
-            padding: 14px 12px;
-            border: 1px solid #333;
-            border-radius: 12px;
-            background: #111;
-            color: #fff;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.15s;
-        }
+        /* Schedule (Fast Setting) */
+        .schedule-group { background: #111; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+        .time-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; }
+        .time-label { font-size: 13px; color: #aaa; min-width: 90px; }
+        .time-input { background: #222; border: 1px solid #444; border-radius: 8px; padding: 8px 12px;
+                      color: #fff; font-size: 16px; font-weight: 600; width: 100%; }
 
-        .preset-btn:active {
-            transform: scale(0.96);
-            background: #222;
-        }
+        /* Pro Schedule Canvas */
+        .canvas-container { background: #111; border-radius: 14px; padding: 16px; margin-bottom: 16px; position: relative; }
+        #proCanvas { width: 100%; height: 250px; border-radius: 8px; background: #0a0a0a; border: 1px solid #333; touch-action: none; }
+        .channel-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+        .channel-tab { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #333; background: #111;
+                       color: #888; font-size: 12px; font-weight: 700; text-align: center; cursor: pointer; }
+        .channel-tab.active { color: #fff; }
+        .channel-tab.ch-w.active { border-color: #fff5e0; background: #2a2820; color: #fff5e0; }
+        .channel-tab.ch-b.active { border-color: #4488ff; background: #1a2040; color: #4488ff; }
+        .channel-tab.ch-g.active { border-color: #44cc44; background: #1a3020; color: #44cc44; }
+        .channel-tab.ch-r.active { border-color: #ff4444; background: #3a1a1a; color: #ff4444; }
 
-        .preset-btn .preset-colors {
-            display: flex;
-            justify-content: center;
-            gap: 4px;
-            margin-top: 6px;
-            font-size: 11px;
-            color: #888;
-        }
+        .pro-actions { display: flex; gap: 8px; margin-top: 12px; }
+        .pro-btn { flex: 1; padding: 10px; border: 1px solid #333; border-radius: 10px; background: #111;
+                   color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
+        .pro-btn:active { background: #222; }
+        .pro-btn.save-btn { border-color: #44ff44; color: #44ff44; }
+        .pro-btn.preview-btn { border-color: #ffaa00; color: #ffaa00; }
+        .pro-btn.reset-btn { border-color: #ff4444; color: #ff4444; }
 
-        .preset-btn.off-btn {
-            border-color: #442222;
-            background: #1a0000;
-        }
+        .time-labels { display: flex; justify-content: space-between; font-size: 10px; color: #555; margin-top: 4px; padding: 0 2px; }
 
-        .preset-btn.full-btn {
-            border-color: #444422;
-            background: #1a1a00;
-        }
-
-        /* Quick buttons */
-        .quick-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .quick-btn {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #333;
-            border-radius: 10px;
-            background: #111;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .quick-btn:active {
-            background: #222;
-        }
-
-        .quick-btn.on {
-            border-color: #44ff44;
-            color: #44ff44;
-        }
-
-        .quick-btn.off {
-            border-color: #ff4444;
-            color: #ff4444;
-        }
+        /* Save buttons for fast setting */
+        .save-actions { display: flex; gap: 8px; margin-bottom: 16px; }
+        .save-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
+        .save-btn.preview { background: #332200; color: #ffaa00; border: 1px solid #ffaa00; }
+        .save-btn.save { background: #003300; color: #44ff44; border: 1px solid #44ff44; }
 
         /* Log */
-        .log-section {
-            background: #111;
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 20px;
-        }
+        .log-section { background: #111; border-radius: 10px; padding: 12px; margin-top: 16px; }
+        .log-content { font-family: 'Courier New', monospace; font-size: 10px; color: #44ff44;
+                       max-height: 120px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+        .log-content .error { color: #ff4444; }
+        .log-content .info { color: #4488ff; }
 
-        .log-content {
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: #44ff44;
-            max-height: 150px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-
-        .log-content .error {
-            color: #ff4444;
-        }
-
-        .log-content .info {
-            color: #4488ff;
-        }
+        /* Pro preset templates */
+        .pro-presets { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+        .pro-preset-btn { padding: 6px 12px; border: 1px solid #333; border-radius: 8px; background: #111;
+                          color: #aaa; font-size: 11px; cursor: pointer; }
+        .pro-preset-btn:active { background: #222; }
     </style>
 </head>
-
 <body>
 
-    <div class="header">
-        <h1>🐟 AQ-Z Controller v1.1</h1>
-        <p>Ledstar RGBW Z III — Custom Controller</p>
-    </div>
+<div class="header">
+    <h1>🐟 AQ-Z Controller v1.2</h1>
+    <p>Ledstar RGBW Z III</p>
+</div>
 
-    <div id="statusBar" class="status-bar disconnected">
-        <div class="status-dot"></div>
-        <span id="statusText">Disconnected</span>
-    </div>
+<div id="statusBar" class="status-bar disconnected">
+    <div class="status-dot"></div>
+    <span id="statusText">Disconnected</span>
+</div>
 
-    <button id="connectBtn" class="connect-btn connect" onclick="toggleConnection()">
-        🔗 Connect to AQ-Z
-    </button>
+<button id="connectBtn" class="connect-btn connect" onclick="toggleConnection()">🔗 Connect to AQ-Z</button>
 
-    <!-- Color Preview -->
-    <div id="colorPreview" class="color-preview" style="background-color: rgb(0,0,0);"></div>
+<!-- Tabs -->
+<div class="tabs">
+    <button class="tab active" onclick="switchTab('realtime')">💡 Control</button>
+    <button class="tab" onclick="switchTab('fast')">⏰ Schedule</button>
+    <button class="tab" onclick="switchTab('pro')">📊 Pro</button>
+</div>
 
-    <!-- Quick ON/OFF -->
+<!-- ==================== REALTIME PANEL ==================== -->
+<div id="panel-realtime" class="panel active">
+    <div id="colorPreview" class="color-preview"></div>
     <div class="quick-row">
-        <button class="quick-btn on" onclick="quickOn()">💡 ON (100%)</button>
+        <button class="quick-btn on" onclick="quickOn()">💡 ON</button>
         <button class="quick-btn off" onclick="quickOff()">⭘ OFF</button>
     </div>
 
-    <!-- Master Brightness -->
     <div class="section-title">☀️ Master Brightness</div>
-    <div class="master-slider">
+    <div class="slider-group">
         <div class="slider-header">
             <span class="slider-label">Brightness</span>
             <span id="master-value" class="slider-value">100%</span>
@@ -400,450 +180,619 @@
         <input type="range" id="slider-master" min="0" max="100" value="100" oninput="onMasterChange(this.value)">
     </div>
 
-    <!-- WBGR Sliders -->
     <div class="section-title">🎨 Color Channels</div>
     <div class="slider-group">
         <div class="slider-container">
             <div class="slider-header">
-                <span class="slider-label">
-                    <span class="dot" style="background:#fff5e0;"></span> White
-                </span>
+                <span class="slider-label"><span class="dot" style="background:#fff5e0;"></span> White</span>
                 <span id="val-w" class="slider-value" style="color:#fff5e0;">0%</span>
             </div>
             <input type="range" id="slider-w" min="0" max="100" value="0" oninput="onSliderChange()">
         </div>
-
         <div class="slider-container">
             <div class="slider-header">
-                <span class="slider-label">
-                    <span class="dot" style="background:#4488ff;"></span> Blue
-                </span>
+                <span class="slider-label"><span class="dot" style="background:#4488ff;"></span> Blue</span>
                 <span id="val-b" class="slider-value" style="color:#4488ff;">0%</span>
             </div>
             <input type="range" id="slider-b" min="0" max="100" value="0" oninput="onSliderChange()">
         </div>
-
         <div class="slider-container">
             <div class="slider-header">
-                <span class="slider-label">
-                    <span class="dot" style="background:#44cc44;"></span> Green
-                </span>
+                <span class="slider-label"><span class="dot" style="background:#44cc44;"></span> Green</span>
                 <span id="val-g" class="slider-value" style="color:#44cc44;">0%</span>
             </div>
             <input type="range" id="slider-g" min="0" max="100" value="0" oninput="onSliderChange()">
         </div>
-
         <div class="slider-container">
             <div class="slider-header">
-                <span class="slider-label">
-                    <span class="dot" style="background:#ff4444;"></span> Red
-                </span>
+                <span class="slider-label"><span class="dot" style="background:#ff4444;"></span> Red</span>
                 <span id="val-r" class="slider-value" style="color:#ff4444;">0%</span>
             </div>
             <input type="range" id="slider-r" min="0" max="100" value="0" oninput="onSliderChange()">
         </div>
     </div>
 
-    <!-- Presets -->
     <div class="section-title">🌿 Presets</div>
     <div class="presets-grid">
-        <button class="preset-btn full-btn" onclick="applyPreset(100,100,100,100)">
-            ⭐ Fully ON
-            <div class="preset-colors">W100 B100 G100 R100</div>
-        </button>
-        <button class="preset-btn" onclick="applyPreset(90,100,100,90)">
-            🌿 Green Plant
-            <div class="preset-colors">W90 B100 G100 R90</div>
-        </button>
-        <button class="preset-btn" onclick="applyPreset(100,90,90,100)">
-            🍁 Red Plant
-            <div class="preset-colors">W100 B90 G90 R100</div>
-        </button>
-        <button class="preset-btn" onclick="applyPreset(90,90,90,75)">
-            🌱 Moss
-            <div class="preset-colors">W90 B90 G90 R75</div>
-        </button>
-        <button class="preset-btn" onclick="applyPreset(100,100,80,100)">
-            🪴 Bucephalandras
-            <div class="preset-colors">W100 B100 G80 R100</div>
-        </button>
-        <button class="preset-btn off-btn" onclick="applyPreset(0,0,0,0)">
-            🌙 OFF
-            <div class="preset-colors">All channels off</div>
-        </button>
+        <button class="preset-btn full-btn" onclick="applyPreset(100,100,100,100)">⭐ Fully ON<div class="preset-colors">W100 B100 G100 R100</div></button>
+        <button class="preset-btn" onclick="applyPreset(90,100,100,90)">🌿 Green Plant<div class="preset-colors">W90 B100 G100 R90</div></button>
+        <button class="preset-btn" onclick="applyPreset(100,90,90,100)">🍁 Red Plant<div class="preset-colors">W100 B90 G90 R100</div></button>
+        <button class="preset-btn" onclick="applyPreset(90,90,90,75)">🌱 Moss<div class="preset-colors">W90 B90 G90 R75</div></button>
+        <button class="preset-btn" onclick="applyPreset(100,100,80,100)">🪴 Bucephalandras<div class="preset-colors">W100 B100 G80 R100</div></button>
+        <button class="preset-btn" onclick="applyPreset(100,100,50,100)">🌊 Biotope<div class="preset-colors">W100 B100 G50 R100</div></button>
+        <button class="preset-btn" onclick="applyPreset(90,100,100,100)">🌳 Rain Forest<div class="preset-colors">W90 B100 G100 R100</div></button>
+        <button class="preset-btn off-btn" onclick="applyPreset(0,0,0,0)">🌙 OFF<div class="preset-colors">All off</div></button>
+    </div>
+</div>
+
+<!-- ==================== FAST SETTING PANEL ==================== -->
+<div id="panel-fast" class="panel">
+    <div class="section-title">⏰ Schedule (Sunrise/Sunset)</div>
+    <div class="schedule-group">
+        <div class="time-row">
+            <span class="time-label">🌅 Sunrise</span>
+            <input type="time" class="time-input" id="sunrise-time" value="08:00">
+        </div>
+        <div class="time-row">
+            <span class="time-label">🌇 Sunset</span>
+            <input type="time" class="time-input" id="sunset-time" value="18:00">
+        </div>
+        <div class="time-row">
+            <span class="time-label">🔄 Fade (min)</span>
+            <input type="number" class="time-input" id="gradient-min" value="30" min="0" max="180" step="5">
+        </div>
     </div>
 
-    <!-- Custom Presets -->
-    <div class="section-title">💾 Custom Presets</div>
-    <div class="quick-row">
-        <button class="quick-btn" onclick="saveCustomPreset(1)">Save Slot 1</button>
-        <button class="quick-btn" onclick="saveCustomPreset(2)">Save Slot 2</button>
-        <button class="quick-btn" onclick="saveCustomPreset(3)">Save Slot 3</button>
+    <div class="section-title">🎨 Peak Brightness</div>
+    <div class="slider-group">
+        <div class="slider-container">
+            <div class="slider-header">
+                <span class="slider-label"><span class="dot" style="background:#fff5e0;"></span> White</span>
+                <span id="fast-val-w" class="slider-value" style="color:#fff5e0;">80%</span>
+            </div>
+            <input type="range" id="fast-w" min="0" max="100" value="80" oninput="updateFastDisplay()">
+        </div>
+        <div class="slider-container">
+            <div class="slider-header">
+                <span class="slider-label"><span class="dot" style="background:#4488ff;"></span> Blue</span>
+                <span id="fast-val-b" class="slider-value" style="color:#4488ff;">80%</span>
+            </div>
+            <input type="range" id="fast-b" min="0" max="100" value="80" oninput="updateFastDisplay()">
+        </div>
+        <div class="slider-container">
+            <div class="slider-header">
+                <span class="slider-label"><span class="dot" style="background:#44cc44;"></span> Green</span>
+                <span id="fast-val-g" class="slider-value" style="color:#44cc44;">80%</span>
+            </div>
+            <input type="range" id="fast-g" min="0" max="100" value="80" oninput="updateFastDisplay()">
+        </div>
+        <div class="slider-container">
+            <div class="slider-header">
+                <span class="slider-label"><span class="dot" style="background:#ff4444;"></span> Red</span>
+                <span id="fast-val-r" class="slider-value" style="color:#ff4444;">80%</span>
+            </div>
+            <input type="range" id="fast-r" min="0" max="100" value="80" oninput="updateFastDisplay()">
+        </div>
     </div>
-    <div class="quick-row">
-        <button class="quick-btn" onclick="loadCustomPreset(1)" id="custom1">Slot 1: Empty</button>
-        <button class="quick-btn" onclick="loadCustomPreset(2)" id="custom2">Slot 2: Empty</button>
-        <button class="quick-btn" onclick="loadCustomPreset(3)" id="custom3">Slot 3: Empty</button>
+
+    <div class="section-title">📊 Preview</div>
+    <div class="canvas-container">
+        <canvas id="fastCanvas" height="150"></canvas>
+        <div class="time-labels"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
     </div>
 
-    <!-- Log -->
-    <div class="section-title">📋 Command Log</div>
-    <div class="log-section">
-        <div id="log" class="log-content">Ready. Connect to your light to begin.\n</div>
+    <div class="save-actions">
+        <button class="save-btn preview" onclick="previewFastSchedule()">👁️ Preview (1min)</button>
+        <button class="save-btn save" onclick="saveFastSchedule()">💾 Save to Light</button>
+    </div>
+</div>
+
+<!-- ==================== PRO SETTING PANEL ==================== -->
+<div id="panel-pro" class="panel">
+    <div class="section-title">📊 Professional Schedule</div>
+
+    <div class="channel-tabs">
+        <button class="channel-tab ch-w active" onclick="switchProChannel('w')">White</button>
+        <button class="channel-tab ch-b" onclick="switchProChannel('b')">Blue</button>
+        <button class="channel-tab ch-g" onclick="switchProChannel('g')">Green</button>
+        <button class="channel-tab ch-r" onclick="switchProChannel('r')">Red</button>
     </div>
 
-    <script>
-        // ==========================================
-        // BLE Configuration
-        // ==========================================
-        const SERVICE_UUID = 0xFFF0;
-        const WRITE_CHAR_UUID = 0xFFF2;
-        const NOTIFY_CHAR_UUID = 0xFFF1;
-        const HEADER = 0x55;
-        const CMD_REALTIME = 0x10;
-        const CMD_SCENE1 = 0x11;
+    <div class="pro-presets">
+        <button class="pro-preset-btn" onclick="proPresetNatural()">🌿 Natural</button>
+        <button class="pro-preset-btn" onclick="proPresetFlat()">▬ Flat 80%</button>
+        <button class="pro-preset-btn" onclick="proPresetDawn()">🌅 Dawn-Dusk</button>
+        <button class="pro-preset-btn" onclick="proPresetClear()">✕ Clear</button>
+    </div>
 
-        // ==========================================
-        // State
-        // ==========================================
-        let bleDevice = null;
-        let bleServer = null;
-        let writeCharacteristic = null;
-        let notifyCharacteristic = null;
-        let isConnected = false;
-        let masterBrightness = 100;
-        let sendTimeout = null;
+    <div class="canvas-container">
+        <canvas id="proCanvas" height="250"></canvas>
+        <div class="time-labels"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+    </div>
 
-        // Channel values (0-100)
-        let channels = { w: 0, b: 0, g: 0, r: 0 };
+    <p style="font-size:11px; color:#666; text-align:center; margin-bottom:12px;">
+        Tap/drag on canvas to set brightness at each time. Each channel independent.
+    </p>
 
-        // ==========================================
-        // Connection
-        // ==========================================
-        async function toggleConnection() {
-            if (isConnected) {
-                disconnect();
-            } else {
-                await connect();
-            }
-        }
+    <div class="pro-actions">
+        <button class="pro-btn reset-btn" onclick="resetProSchedule()">🗑️ Reset</button>
+        <button class="pro-btn preview-btn" onclick="previewProSchedule()">👁️ Preview</button>
+        <button class="pro-btn save-btn" onclick="saveProSchedule()">💾 Save</button>
+    </div>
+</div>
 
-        async function connect() {
-            try {
-                updateStatus('connecting', 'Searching for AQ-Z...');
-                log('Scanning for BLE devices...', 'info');
+<!-- Log -->
+<div class="section-title">📋 Log</div>
+<div class="log-section">
+    <div id="log" class="log-content">Ready.\n</div>
+</div>
 
-                bleDevice = await navigator.bluetooth.requestDevice({
-                    filters: [
-                        { namePrefix: 'AQ' }
-                    ],
-                    optionalServices: [SERVICE_UUID]
-                });
+<script>
+// ==========================================
+// BLE CONFIG
+// ==========================================
+const SERVICE_UUID = 0xFFF0;
+const WRITE_CHAR_UUID = 0xFFF2;
+const NOTIFY_CHAR_UUID = 0xFFF1;
+const HEADER = 0x55;
+const CMD_REALTIME = 0x10;
+const CMD_SCENE1 = 0x11;
+const CMD_SCENE2 = 0x14;
 
-                log(`Found: ${bleDevice.name} (${bleDevice.id})`, 'info');
-                updateStatus('connecting', 'Connecting...');
+// ==========================================
+// STATE
+// ==========================================
+let bleDevice = null, bleServer = null, writeCharacteristic = null, notifyCharacteristic = null;
+let isConnected = false, masterBrightness = 100, sendTimeout = null;
+let channels = { w: 0, b: 0, g: 0, r: 0 };
+let previewInterval = null;
 
-                bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
+// Pro schedule: 48 values per channel (0-100)
+let proSchedule = {
+    w: new Array(48).fill(0),
+    b: new Array(48).fill(0),
+    g: new Array(48).fill(0),
+    r: new Array(48).fill(0)
+};
+let activeProChannel = 'w';
 
-                bleServer = await bleDevice.gatt.connect();
-                log('GATT server connected', 'info');
+// ==========================================
+// CONNECTION
+// ==========================================
+async function toggleConnection() {
+    if (isConnected) { disconnect(); } else { await connect(); }
+}
 
-                const service = await bleServer.getPrimaryService(SERVICE_UUID);
-                log('Service 0xFFF0 found', 'info');
-
-                writeCharacteristic = await service.getCharacteristic(WRITE_CHAR_UUID);
-                log('Write characteristic 0xFFF2 found ✓', 'info');
-
-                try {
-                    notifyCharacteristic = await service.getCharacteristic(NOTIFY_CHAR_UUID);
-                    await notifyCharacteristic.startNotifications();
-                    notifyCharacteristic.addEventListener('characteristicvaluechanged', onNotification);
-                    log('Notify characteristic 0xFFF1 subscribed ✓', 'info');
-                } catch (e) {
-                    log('Notify setup skipped (non-critical)', 'info');
-                }
-
-                isConnected = true;
-                updateStatus('connected', `Connected: ${bleDevice.name}`);
-                updateConnectButton(true);
-                log('🎉 Ready to control your light!', 'info');
-
-            } catch (error) {
-                log(`Connection failed: ${error.message}`, 'error');
-                updateStatus('disconnected', 'Connection failed');
-                updateConnectButton(false);
-            }
-        }
-
-        function disconnect() {
-            if (bleDevice && bleDevice.gatt.connected) {
-                bleDevice.gatt.disconnect();
-            }
-            onDisconnected();
-        }
-
-        function onDisconnected() {
-            isConnected = false;
-            writeCharacteristic = null;
-            notifyCharacteristic = null;
-            updateStatus('disconnected', 'Disconnected');
-            updateConnectButton(false);
-            log('Disconnected from light', 'info');
-        }
-
-        function onNotification(event) {
-            const value = new Uint8Array(event.target.value.buffer);
-            const hex = Array.from(value).map(b => b.toString(16).padStart(2, '0')).join(' ');
-            log(`← Received: ${hex}`, 'info');
-        }
-
-        // ==========================================
-        // Command Building
-        // ==========================================
-        function buildRealtimeCommand(w, b, g, r) {
-            const now = new Date();
-            const hour = now.getHours();
-            const minute = now.getMinutes();
-
-            // Apply master brightness
-            const mw = Math.round(w * masterBrightness / 100);
-            const mb = Math.round(b * masterBrightness / 100);
-            const mg = Math.round(g * masterBrightness / 100);
-            const mr = Math.round(r * masterBrightness / 100);
-
-            const payload = [hour, minute, mw, mb, mg, mr, 0x01];
-            const length = payload.length + 3; // +3 for header, length, function code... +1 for checksum
-            // Total packet: header(1) + length(1) + function(1) + payload(7) + checksum(1) = 11
-
-            const packet = new Uint8Array(length + 1);
-            packet[0] = HEADER;          // 0x55
-            packet[1] = length + 1;      // total length including checksum
-            packet[2] = CMD_REALTIME;    // 0x10
-
-            for (let i = 0; i < payload.length; i++) {
-                packet[3 + i] = payload[i];
-            }
-
-            // Checksum: sum of all bytes & 0xFF
-            let sum = 0;
-            for (let i = 0; i < packet.length - 1; i++) {
-                sum += packet[i];
-            }
-            packet[packet.length - 1] = sum & 0xFF;
-
-            return packet;
-        }
-
-        async function sendCommand(packet) {
-            if (!isConnected || !writeCharacteristic) {
-                log('Not connected!', 'error');
-                return;
-            }
-
-            try {
-                const hex = Array.from(packet).map(b =>
-                    b.toString(16).padStart(2, '0')).join(' ');
-                log(`→ Sent: ${hex}`);
-
-                // Method 1: Write WITH response (matches nRF Connect "Request" mode)
-                await writeCharacteristic.writeValueWithResponse(packet);
-
-            } catch (error) {
-                log(`Method 1 failed: ${error.message}, trying method 2...`, 'error');
-
-                try {
-                    // Method 2: Write WITHOUT response
-                    await writeCharacteristic.writeValueWithoutResponse(packet);
-                    log('Method 2 (no response) succeeded', 'info');
-                } catch (e2) {
-                    log(`Method 2 failed: ${e2.message}, trying method 3...`, 'error');
-
-                    try {
-                        // Method 3: Deprecated but widely supported writeValue
-                        await writeCharacteristic.writeValue(packet);
-                        log('Method 3 (legacy) succeeded', 'info');
-                    } catch (e3) {
-                        log(`All methods failed: ${e3.message}`, 'error');
-                    }
-                }
-            }
-        }
-
-
-        // ==========================================
-        // Slider Controls
-        // ==========================================
-        function onSliderChange() {
-            channels.w = parseInt(document.getElementById('slider-w').value);
-            channels.b = parseInt(document.getElementById('slider-b').value);
-            channels.g = parseInt(document.getElementById('slider-g').value);
-            channels.r = parseInt(document.getElementById('slider-r').value);
-
-            updateDisplay();
-            throttledSend();
-        }
-
-        function onMasterChange(val) {
-            masterBrightness = parseInt(val);
-            document.getElementById('master-value').textContent = masterBrightness + '%';
-            throttledSend();
-        }
-
-        function throttledSend() {
-            if (sendTimeout) clearTimeout(sendTimeout);
-            sendTimeout = setTimeout(() => {
-                const packet = buildRealtimeCommand(channels.w, channels.b, channels.g, channels.r);
-                sendCommand(packet);
-            }, 50); // 50ms throttle for smooth sliding
-        }
-
-        function updateDisplay() {
-            document.getElementById('val-w').textContent = channels.w + '%';
-            document.getElementById('val-b').textContent = channels.b + '%';
-            document.getElementById('val-g').textContent = channels.g + '%';
-            document.getElementById('val-r').textContent = channels.r + '%';
-
-            // Update color preview
-            const mw = channels.w * masterBrightness / 100;
-            const mb = channels.b * masterBrightness / 100;
-            const mg = channels.g * masterBrightness / 100;
-            const mr = channels.r * masterBrightness / 100;
-
-            // Mix RGB for preview (white adds to all channels)
-            const previewR = Math.min(255, (mr / 100) * 255 + (mw / 100) * 200);
-            const previewG = Math.min(255, (mg / 100) * 255 + (mw / 100) * 180);
-            const previewB = Math.min(255, (mb / 100) * 255 + (mw / 100) * 160);
-
-            document.getElementById('colorPreview').style.backgroundColor =
-                `rgb(${Math.round(previewR)}, ${Math.round(previewG)}, ${Math.round(previewB)})`;
-        }
-
-        // ==========================================
-        // Presets
-        // ==========================================
-        function applyPreset(w, b, g, r) {
-            channels.w = w;
-            channels.b = b;
-            channels.g = g;
-            channels.r = r;
-
-            document.getElementById('slider-w').value = w;
-            document.getElementById('slider-b').value = b;
-            document.getElementById('slider-g').value = g;
-            document.getElementById('slider-r').value = r;
-
-            updateDisplay();
-
-            const packet = buildRealtimeCommand(w, b, g, r);
-            sendCommand(packet);
-
-            log(`Preset applied: W=${w} B=${b} G=${g} R=${r}`, 'info');
-        }
-
-        function quickOn() {
-            masterBrightness = 100;
-            document.getElementById('slider-master').value = 100;
-            document.getElementById('master-value').textContent = '100%';
-            applyPreset(100, 100, 100, 100);
-        }
-
-        function quickOff() {
-            applyPreset(0, 0, 0, 0);
-        }
-
-        // ==========================================
-        // Custom Presets (saved in localStorage)
-        // ==========================================
-        function saveCustomPreset(slot) {
-            const preset = {
-                w: channels.w,
-                b: channels.b,
-                g: channels.g,
-                r: channels.r,
-                master: masterBrightness
-            };
-            localStorage.setItem(`aqz_preset_${slot}`, JSON.stringify(preset));
-            document.getElementById(`custom${slot}`).textContent =
-                `Slot ${slot}: W${preset.w} B${preset.b} G${preset.g} R${preset.r}`;
-            log(`Saved custom preset ${slot}: W=${preset.w} B=${preset.b} G=${preset.g} R=${preset.r}`, 'info');
-        }
-
-        function loadCustomPreset(slot) {
-            const data = localStorage.getItem(`aqz_preset_${slot}`);
-            if (!data) {
-                log(`Slot ${slot} is empty`, 'error');
-                return;
-            }
-            const preset = JSON.parse(data);
-            masterBrightness = preset.master || 100;
-            document.getElementById('slider-master').value = masterBrightness;
-            document.getElementById('master-value').textContent = masterBrightness + '%';
-            applyPreset(preset.w, preset.b, preset.g, preset.r);
-        }
-
-        function loadSavedPresets() {
-            for (let slot = 1; slot <= 3; slot++) {
-                const data = localStorage.getItem(`aqz_preset_${slot}`);
-                if (data) {
-                    const preset = JSON.parse(data);
-                    document.getElementById(`custom${slot}`).textContent =
-                        `Slot ${slot}: W${preset.w} B${preset.b} G${preset.g} R${preset.r}`;
-                }
-            }
-        }
-
-        // ==========================================
-        // UI Helpers
-        // ==========================================
-        function updateStatus(state, text) {
-            const bar = document.getElementById('statusBar');
-            bar.className = `status-bar ${state}`;
-            document.getElementById('statusText').textContent = text;
-        }
-
-        function updateConnectButton(connected) {
-            const btn = document.getElementById('connectBtn');
-            if (connected) {
-                btn.className = 'connect-btn disconnect';
-                btn.textContent = '🔌 Disconnect';
-            } else {
-                btn.className = 'connect-btn connect';
-                btn.textContent = '🔗 Connect to AQ-Z';
-            }
-        }
-
-        function log(message, type = '') {
-            const logEl = document.getElementById('log');
-            const time = new Date().toLocaleTimeString();
-            const cls = type ? ` class="${type}"` : '';
-            logEl.innerHTML += `<span${cls}>[${time}] ${message}\n</span>`;
-            logEl.scrollTop = logEl.scrollHeight;
-        }
-
-        // ==========================================
-        // Check Web Bluetooth Support
-        // ==========================================
-        function checkBluetooth() {
-            if (!navigator.bluetooth) {
-                log('❌ Web Bluetooth NOT supported in this browser!', 'error');
-                log('Use Chrome on Android or Chrome on laptop', 'error');
-                log('Must be HTTPS or localhost', 'error');
-                document.getElementById('connectBtn').disabled = true;
-                return false;
-            }
-            log('✅ Web Bluetooth is supported', 'info');
-            return true;
-        }
-
-        // ==========================================
-        // Init
-        // ==========================================
-        window.addEventListener('load', () => {
-            checkBluetooth();
-            loadSavedPresets();
-            updateDisplay();
+async function connect() {
+    try {
+        updateStatus('connecting', 'Searching...');
+        log('Scanning for BLE devices...', 'info');
+        bleDevice = await navigator.bluetooth.requestDevice({
+            filters: [{ namePrefix: 'AQ' }],
+            optionalServices: [SERVICE_UUID]
         });
-    </script>
-</body>
+        log(`Found: ${bleDevice.name}`, 'info');
+        bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
+        bleServer = await bleDevice.gatt.connect();
+        const service = await bleServer.getPrimaryService(SERVICE_UUID);
+        writeCharacteristic = await service.getCharacteristic(WRITE_CHAR_UUID);
+        log('Write characteristic 0xFFF2 ready ✓', 'info');
+        try {
+            notifyCharacteristic = await service.getCharacteristic(NOTIFY_CHAR_UUID);
+            await notifyCharacteristic.startNotifications();
+            notifyCharacteristic.addEventListener('characteristicvaluechanged', onNotification);
+        } catch(e) {}
+        isConnected = true;
+        updateStatus('connected', `Connected: ${bleDevice.name}`);
+        updateConnectButton(true);
+        log('🎉 Ready!', 'info');
+    } catch (error) {
+        log(`Connection failed: ${error.message}`, 'error');
+        updateStatus('disconnected', 'Connection failed');
+        updateConnectButton(false);
+    }
+}
 
+function disconnect() { if (bleDevice?.gatt.connected) bleDevice.gatt.disconnect(); onDisconnected(); }
+function onDisconnected() { isConnected = false; writeCharacteristic = null; updateStatus('disconnected', 'Disconnected'); updateConnectButton(false); }
+function onNotification(event) {
+    const hex = Array.from(new Uint8Array(event.target.value.buffer)).map(b => b.toString(16).padStart(2,'0')).join(' ');
+    log(`← ${hex}`, 'info');
+}
+
+// ==========================================
+// COMMAND BUILDING
+// ==========================================
+function checksum(arr) { let s = 0; for (let b of arr) s += b; return s & 0xFF; }
+
+function buildRealtimeCmd(w, b, g, r) {
+    const now = new Date();
+    const mw = Math.round(w * masterBrightness / 100);
+    const mb = Math.round(b * masterBrightness / 100);
+    const mg = Math.round(g * masterBrightness / 100);
+    const mr = Math.round(r * masterBrightness / 100);
+    const pkt = new Uint8Array([HEADER, 0x0B, CMD_REALTIME, now.getHours(), now.getMinutes(), mw, mb, mg, mr, 0x01, 0x00]);
+    pkt[pkt.length - 1] = checksum(pkt);
+    return pkt;
+}
+
+function buildScene1Cmd(w, b, g, r, startMin, endMin, gradientMin) {
+    const now = new Date();
+    const sh = Math.floor(startMin / 60), sm = startMin % 60;
+    const eh = Math.floor(endMin / 60), em = endMin % 60;
+    const grad = Math.floor((gradientMin * 2) / 60);
+    const pkt = new Uint8Array([HEADER, 0x10, CMD_SCENE1, now.getHours(), now.getMinutes(),
+        sh, sm, eh, em, grad, w, b, g, r, 0x01, 0x00]);
+    pkt[pkt.length - 1] = checksum(pkt);
+    return pkt;
+}
+
+function buildScene2Cmd(wArr, bArr, gArr, rArr) {
+    const now = new Date();
+    const payloadLen = 242;
+    const totalLen = payloadLen + 4;
+    const pkt = new Uint8Array(totalLen);
+    pkt[0] = HEADER;
+    pkt[1] = totalLen & 0xFF;
+    pkt[2] = CMD_SCENE2;
+    pkt[3] = now.getHours();
+    pkt[4] = now.getMinutes();
+    for (let i = 0; i < 48; i++) {
+        pkt[5 + i] = Math.round(wArr[i]) & 0xFF;
+        pkt[53 + i] = Math.round(bArr[i]) & 0xFF;
+        pkt[101 + i] = Math.round(gArr[i]) & 0xFF;
+        pkt[149 + i] = Math.round(rArr[i]) & 0xFF;
+    }
+    for (let i = 197; i < totalLen - 1; i++) pkt[i] = 0x01;
+    pkt[totalLen - 1] = checksum(pkt);
+    return pkt;
+}
+
+async function sendCommand(packet) {
+    if (!isConnected || !writeCharacteristic) { log('Not connected!', 'error'); return; }
+    const hex = Array.from(packet).map(b => b.toString(16).padStart(2,'0')).join(' ');
+    try {
+        // For large packets (Scene2 = 246 bytes), may need chunked writing
+        if (packet.length > 20) {
+            // Try full write first (works if MTU negotiated)
+            try {
+                await writeCharacteristic.writeValueWithResponse(packet);
+                log(`→ Sent ${packet.length}B: ${hex.substring(0, 50)}...`, 'info');
+                return;
+            } catch(e) {
+                log(`Full write failed, trying chunks...`, 'info');
+                // Chunk into 20-byte segments
+                for (let offset = 0; offset < packet.length; offset += 20) {
+                    const chunk = packet.slice(offset, Math.min(offset + 20, packet.length));
+                    await writeCharacteristic.writeValueWithoutResponse(chunk);
+                    await new Promise(r => setTimeout(r, 30));
+                }
+                log(`→ Sent ${packet.length}B chunked: ${hex.substring(0, 50)}...`, 'info');
+                return;
+            }
+        }
+        await writeCharacteristic.writeValueWithResponse(packet);
+        log(`→ ${hex}`);
+    } catch (e1) {
+        try { await writeCharacteristic.writeValueWithoutResponse(packet); log(`→ ${hex}`); }
+        catch (e2) { try { await writeCharacteristic.writeValue(packet); log(`→ ${hex}`); }
+        catch (e3) { log(`Send failed: ${e3.message}`, 'error'); } }
+    }
+}
+
+// ==========================================
+// TABS
+// ==========================================
+function switchTab(name) {
+    document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['realtime','fast','pro'][i] === name));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(`panel-${name}`).classList.add('active');
+    if (name === 'fast') { updateFastDisplay(); drawFastCanvas(); }
+    if (name === 'pro') drawProCanvas();
+}
+
+// ==========================================
+// REALTIME CONTROLS
+// ==========================================
+function onSliderChange() {
+    channels.w = +document.getElementById('slider-w').value;
+    channels.b = +document.getElementById('slider-b').value;
+    channels.g = +document.getElementById('slider-g').value;
+    channels.r = +document.getElementById('slider-r').value;
+    updateDisplay(); throttledSend();
+}
+function onMasterChange(val) { masterBrightness = +val; document.getElementById('master-value').textContent = val+'%'; throttledSend(); }
+function throttledSend() { if(sendTimeout) clearTimeout(sendTimeout); sendTimeout = setTimeout(() => sendCommand(buildRealtimeCmd(channels.w, channels.b, channels.g, channels.r)), 50); }
+
+function updateDisplay() {
+    document.getElementById('val-w').textContent = channels.w+'%';
+    document.getElementById('val-b').textContent = channels.b+'%';
+    document.getElementById('val-g').textContent = channels.g+'%';
+    document.getElementById('val-r').textContent = channels.r+'%';
+    const mw=channels.w*masterBrightness/100, mb=channels.b*masterBrightness/100;
+    const mg=channels.g*masterBrightness/100, mr=channels.r*masterBrightness/100;
+    const pR=Math.min(255,(mr/100)*255+(mw/100)*200), pG=Math.min(255,(mg/100)*255+(mw/100)*180), pB=Math.min(255,(mb/100)*255+(mw/100)*160);
+    document.getElementById('colorPreview').style.backgroundColor = `rgb(${Math.round(pR)},${Math.round(pG)},${Math.round(pB)})`;
+}
+
+function applyPreset(w,b,g,r) {
+    channels={w,b,g,r};
+    document.getElementById('slider-w').value=w; document.getElementById('slider-b').value=b;
+    document.getElementById('slider-g').value=g; document.getElementById('slider-r').value=r;
+    updateDisplay(); sendCommand(buildRealtimeCmd(w,b,g,r));
+    log(`Preset: W=${w} B=${b} G=${g} R=${r}`, 'info');
+}
+function quickOn() { masterBrightness=100; document.getElementById('slider-master').value=100; document.getElementById('master-value').textContent='100%'; applyPreset(100,100,100,100); }
+function quickOff() { applyPreset(0,0,0,0); }
+
+// ==========================================
+// FAST SETTING (Schedule)
+// ==========================================
+function updateFastDisplay() {
+    ['w','b','g','r'].forEach(c => document.getElementById(`fast-val-${c}`).textContent = document.getElementById(`fast-${c}`).value + '%');
+    drawFastCanvas();
+}
+
+function drawFastCanvas() {
+    const canvas = document.getElementById('fastCanvas');
+    canvas.width = canvas.offsetWidth * 2; canvas.height = 300;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+
+    const sunrise = document.getElementById('sunrise-time').value || '08:00';
+    const sunset = document.getElementById('sunset-time').value || '18:00';
+    const grad = +(document.getElementById('gradient-min').value || 30);
+    const [sh,sm] = sunrise.split(':').map(Number), [eh,em] = sunset.split(':').map(Number);
+    const startMin = sh*60+sm, endMin = eh*60+em;
+
+    const colors = {w:'#fff5e0', b:'#4488ff', g:'#44cc44', r:'#ff4444'};
+    ['w','b','g','r'].forEach(ch => {
+        const val = +document.getElementById(`fast-${ch}`).value;
+        ctx.beginPath(); ctx.strokeStyle = colors[ch]; ctx.lineWidth = 3;
+        for (let x = 0; x < W; x++) {
+            const min = (x/W)*1440;
+            let brightness = 0;
+            if (min >= startMin && min <= endMin) {
+                if (min < startMin + grad) brightness = val * ((min - startMin) / grad);
+                else if (min > endMin - grad) brightness = val * ((endMin - min) / grad);
+                else brightness = val;
+            }
+            const y = H - (brightness/100)*H;
+            x === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+    });
+
+    // Grid
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 1;
+    for (let h = 0; h <= 24; h += 6) { const x = (h/24)*W; ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for (let p = 0; p <= 100; p += 25) { const y = H-(p/100)*H; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+}
+
+function saveFastSchedule() {
+    const sunrise = document.getElementById('sunrise-time').value || '08:00';
+    const sunset = document.getElementById('sunset-time').value || '18:00';
+    const grad = +(document.getElementById('gradient-min').value || 30);
+    const [sh,sm] = sunrise.split(':').map(Number), [eh,em] = sunset.split(':').map(Number);
+    const w=+document.getElementById('fast-w').value, b=+document.getElementById('fast-b').value;
+    const g=+document.getElementById('fast-g').value, r=+document.getElementById('fast-r').value;
+    const startMin = sh*60+sm, endMin = eh*60+em;
+    const pkt = buildScene1Cmd(w, b, g, r, startMin, endMin, grad);
+    sendCommand(pkt);
+    log(`📅 Schedule saved: ${sunrise}-${sunset}, fade=${grad}min, W=${w} B=${b} G=${g} R=${r}`, 'info');
+}
+
+function previewFastSchedule() {
+    if (previewInterval) { clearInterval(previewInterval); previewInterval = null; log('Preview stopped', 'info'); return; }
+    const sunrise = document.getElementById('sunrise-time').value || '08:00';
+    const sunset = document.getElementById('sunset-time').value || '18:00';
+    const grad = +(document.getElementById('gradient-min').value || 30);
+    const [sh,sm] = sunrise.split(':').map(Number), [eh,em] = sunset.split(':').map(Number);
+    const startMin = sh*60+sm, endMin = eh*60+em;
+    const fw=+document.getElementById('fast-w').value, fb=+document.getElementById('fast-b').value;
+    const fg=+document.getElementById('fast-g').value, fr=+document.getElementById('fast-r').value;
+
+    let step = 0;
+    const totalSteps = 60; // 60 seconds for full day
+    log('👁️ Preview: simulating 24h in 60 seconds...', 'info');
+    previewInterval = setInterval(() => {
+        if (step >= totalSteps) { clearInterval(previewInterval); previewInterval = null; log('Preview complete', 'info'); return; }
+        const min = (step/totalSteps)*1440;
+        let brightness = 0;
+        if (min >= startMin && min <= endMin) {
+            if (min < startMin+grad) brightness = (min-startMin)/grad;
+            else if (min > endMin-grad) brightness = (endMin-min)/grad;
+            else brightness = 1;
+        }
+        const w=Math.round(fw*brightness), b=Math.round(fb*brightness), g=Math.round(fg*brightness), r=Math.round(fr*brightness);
+        sendCommand(buildRealtimeCmd(w,b,g,r));
+        step++;
+    }, 1000);
+}
+
+// ==========================================
+// PRO SETTING (Professional Schedule)
+// ==========================================
+function switchProChannel(ch) {
+    activeProChannel = ch;
+    document.querySelectorAll('.channel-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.ch-${ch}`).classList.add('active');
+    drawProCanvas();
+}
+
+function drawProCanvas() {
+    const canvas = document.getElementById('proCanvas');
+    canvas.width = canvas.offsetWidth * 2; canvas.height = 500;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height, pad = 10;
+
+    ctx.clearRect(0,0,W,H);
+
+    // Grid
+    ctx.strokeStyle = '#222'; ctx.lineWidth = 1;
+    for (let h = 0; h <= 24; h += 2) { const x = pad+(h/24)*(W-2*pad); ctx.beginPath(); ctx.moveTo(x,pad); ctx.lineTo(x,H-pad); ctx.stroke(); }
+    for (let p = 0; p <= 100; p += 25) { const y = pad+((100-p)/100)*(H-2*pad); ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(W-pad,y); ctx.stroke();
+        ctx.fillStyle='#444'; ctx.font='18px sans-serif'; ctx.fillText(p+'%', pad+2, y-4); }
+
+    const colors = {w:'#fff5e0', b:'#4488ff', g:'#44cc44', r:'#ff4444'};
+    const alphas = {w:0.3, b:0.3, g:0.3, r:0.3};
+    alphas[activeProChannel] = 1;
+
+    // Draw all channels
+    ['w','b','g','r'].forEach(ch => {
+        ctx.globalAlpha = alphas[ch];
+        ctx.beginPath(); ctx.strokeStyle = colors[ch]; ctx.lineWidth = ch===activeProChannel ? 4 : 2;
+        for (let i = 0; i < 48; i++) {
+            const x = pad + (i/47)*(W-2*pad);
+            const y = pad + ((100-proSchedule[ch][i])/100)*(H-2*pad);
+            i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+
+        // Draw dots for active channel
+        if (ch === activeProChannel) {
+            for (let i = 0; i < 48; i++) {
+                const x = pad + (i/47)*(W-2*pad);
+                const y = pad + ((100-proSchedule[ch][i])/100)*(H-2*pad);
+                ctx.beginPath(); ctx.fillStyle = colors[ch]; ctx.arc(x,y,5,0,Math.PI*2); ctx.fill();
+            }
+        }
+    });
+    ctx.globalAlpha = 1;
+}
+
+// Touch/mouse handling for pro canvas
+function initProCanvas() {
+    const canvas = document.getElementById('proCanvas');
+    let drawing = false;
+
+    function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches ? e.touches[0] : e;
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        return { x: (touch.clientX - rect.left) * scaleX, y: (touch.clientY - rect.top) * scaleY };
+    }
+
+    function updatePoint(pos) {
+        const pad = 10, W = canvas.width, H = canvas.height;
+        const ratio = (pos.x - pad) / (W - 2*pad);
+        const index = Math.round(ratio * 47);
+        if (index < 0 || index > 47) return;
+        const val = 100 - ((pos.y - pad) / (H - 2*pad)) * 100;
+        proSchedule[activeProChannel][index] = Math.max(0, Math.min(100, Math.round(val)));
+        drawProCanvas();
+    }
+
+    canvas.addEventListener('mousedown', e => { drawing = true; updatePoint(getPos(e)); });
+    canvas.addEventListener('mousemove', e => { if (drawing) updatePoint(getPos(e)); });
+    canvas.addEventListener('mouseup', () => drawing = false);
+    canvas.addEventListener('mouseleave', () => drawing = false);
+
+    canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; updatePoint(getPos(e)); }, {passive:false});
+    canvas.addEventListener('touchmove', e => { e.preventDefault(); if (drawing) updatePoint(getPos(e)); }, {passive:false});
+    canvas.addEventListener('touchend', () => drawing = false);
+}
+
+function saveProSchedule() {
+    const pkt = buildScene2Cmd(proSchedule.w, proSchedule.b, proSchedule.g, proSchedule.r);
+    sendCommand(pkt);
+    log(`📊 Pro schedule saved! (${pkt.length} bytes)`, 'info');
+    // Also save to localStorage
+    localStorage.setItem('aqz_pro_schedule', JSON.stringify(proSchedule));
+}
+
+function previewProSchedule() {
+    if (previewInterval) { clearInterval(previewInterval); previewInterval = null; log('Preview stopped', 'info'); return; }
+    let step = 0;
+    const totalSteps = 60;
+    log('👁️ Pro Preview: 24h in 60 seconds...', 'info');
+    previewInterval = setInterval(() => {
+        if (step >= totalSteps) { clearInterval(previewInterval); previewInterval = null; log('Preview complete', 'info'); return; }
+        const idx = Math.floor((step/totalSteps)*48);
+        const i = Math.min(idx, 47);
+        sendCommand(buildRealtimeCmd(proSchedule.w[i], proSchedule.b[i], proSchedule.g[i], proSchedule.r[i]));
+        step++;
+    }, 1000);
+}
+
+function resetProSchedule() {
+    proSchedule = { w: new Array(48).fill(0), b: new Array(48).fill(0), g: new Array(48).fill(0), r: new Array(48).fill(0) };
+    drawProCanvas();
+    log('Pro schedule cleared', 'info');
+}
+
+// Pro presets
+function proPresetNatural() {
+    for (let i = 0; i < 48; i++) {
+        const hour = i * 0.5;
+        let val = 0;
+        if (hour >= 7 && hour <= 19) {
+            if (hour < 9) val = ((hour-7)/2)*80;
+            else if (hour > 17) val = ((19-hour)/2)*80;
+            else val = 80;
+        }
+        proSchedule.w[i] = Math.round(val);
+        proSchedule.b[i] = Math.round(val * 0.9);
+        proSchedule.g[i] = Math.round(val);
+        proSchedule.r[i] = Math.round(hour >= 16 && hour <= 19 ? val * 1.1 : val * 0.8);
+        proSchedule.r[i] = Math.min(100, proSchedule.r[i]);
+    }
+    drawProCanvas(); log('Natural preset loaded', 'info');
+}
+function proPresetFlat() {
+    for (let i = 0; i < 48; i++) {
+        const hour = i * 0.5;
+        const val = (hour >= 8 && hour <= 18) ? 80 : 0;
+        proSchedule.w[i]=val; proSchedule.b[i]=val; proSchedule.g[i]=val; proSchedule.r[i]=val;
+    }
+    drawProCanvas(); log('Flat 80% preset loaded', 'info');
+}
+function proPresetDawn() {
+    for (let i = 0; i < 48; i++) {
+        const hour = i * 0.5;
+        let val = 0;
+        if (hour >= 6 && hour <= 20) {
+            const mid = 13;
+            val = Math.max(0, 90 - Math.abs(hour - mid) * 12);
+        }
+        proSchedule.w[i] = Math.round(val);
+        proSchedule.b[i] = Math.round(val * 0.95);
+        proSchedule.g[i] = Math.round(val * 0.9);
+        proSchedule.r[i] = Math.round(val * 0.85);
+    }
+    drawProCanvas(); log('Dawn-Dusk preset loaded', 'info');
+}
+function proPresetClear() {
+    proSchedule[activeProChannel] = new Array(48).fill(0);
+    drawProCanvas(); log(`${activeProChannel.toUpperCase()} channel cleared`, 'info');
+}
+
+// ==========================================
+// UI HELPERS
+// ==========================================
+function updateStatus(state, text) { const bar=document.getElementById('statusBar'); bar.className=`status-bar ${state}`; document.getElementById('statusText').textContent=text; }
+function updateConnectButton(connected) { const btn=document.getElementById('connectBtn'); btn.className=connected?'connect-btn disconnect':'connect-btn connect'; btn.textContent=connected?'🔌 Disconnect':'🔗 Connect to AQ-Z'; }
+function log(msg, type='') { const el=document.getElementById('log'); const t=new Date().toLocaleTimeString(); el.innerHTML+=`<span${type?` class="${type}"`:``}>[${t}] ${msg}\n</span>`; el.scrollTop=el.scrollHeight; }
+
+// ==========================================
+// INIT
+// ==========================================
+window.addEventListener('load', () => {
+    if (!navigator.bluetooth) { log('❌ Web Bluetooth not supported! Use Chrome.', 'error'); document.getElementById('connectBtn').disabled=true; }
+    else log('✅ Web Bluetooth supported', 'info');
+
+    // Load saved pro schedule
+    const saved = localStorage.getItem('aqz_pro_schedule');
+    if (saved) { try { proSchedule = JSON.parse(saved); log('Loaded saved pro schedule', 'info'); } catch(e){} }
+
+    updateDisplay();
+    setTimeout(() => { drawFastCanvas(); initProCanvas(); drawProCanvas(); }, 100);
+
+    // Redraw on resize
+    window.addEventListener('resize', () => { drawFastCanvas(); drawProCanvas(); });
+});
+</script>
+</body>
 </html>
