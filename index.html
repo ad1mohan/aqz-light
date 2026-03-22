@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>AQ-Z Light Controller</title>
+    <title>AKuarium — AQ-Z Light Controller</title>
+    <link rel="icon" href="logo.png" type="image/png">
     <style>
         * {
             margin: 0;
@@ -18,20 +19,28 @@
             color: #fff;
             min-height: 100vh;
             padding: 16px;
-            padding-bottom: 120px;
+            padding-bottom: 140px;
         }
 
         .header {
             text-align: center;
-            padding: 16px 0;
+            padding: 12px 0 16px 0;
             border-bottom: 1px solid #222;
             margin-bottom: 16px;
+        }
+
+        .header-logo {
+            width: 152px;
+            height: 52px;
+            border-radius: 12px;
+            margin-bottom: 6px;
+            object-fit: contain;
         }
 
         .header h1 {
             font-size: 22px;
             font-weight: 700;
-            color: #ff4444;
+            color: #fff;
         }
 
         .header p {
@@ -64,7 +73,7 @@
         }
 
         .tab.active {
-            background: #ff4444;
+            background: #4caf50;
             color: #fff;
         }
 
@@ -142,7 +151,7 @@
         }
 
         .connect-btn.connect {
-            background: linear-gradient(135deg, #ff4444, #cc0000);
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
             color: white;
         }
 
@@ -400,7 +409,7 @@
             width: 100%;
         }
 
-        /* Pro Schedule Canvas */
+        /* Canvas shared styles */
         .canvas-container {
             background: #111;
             border-radius: 14px;
@@ -409,12 +418,21 @@
             position: relative;
         }
 
+        #fastCanvas,
         #proCanvas {
             width: 100%;
-            height: 250px;
             border-radius: 8px;
             background: #0a0a0a;
             border: 1px solid #333;
+            display: block;
+        }
+
+        #fastCanvas {
+            height: 180px;
+        }
+
+        #proCanvas {
+            height: 250px;
             touch-action: none;
         }
 
@@ -588,14 +606,44 @@
         .pro-preset-btn:active {
             background: #222;
         }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px 0 8px 0;
+            margin-top: 24px;
+            border-top: 1px solid #1a1a1a;
+        }
+
+        .footer p {
+            font-size: 11px;
+            color: #444;
+            margin: 3px 0;
+        }
+
+        .footer a {
+            color: #ff4444;
+            text-decoration: none;
+        }
+
+        .footer .india {
+            font-size: 12px;
+            color: #555;
+            margin-top: 8px;
+        }
+
+        .footer .india .flag {
+            font-size: 14px;
+        }
     </style>
 </head>
 
 <body>
 
     <div class="header">
-        <h1>🐟 AQ-Z Controller v1.6</h1>
-        <p>Ledstar RGBW Z III</p>
+        <img src="logo.png" alt="AKuarium" class="header-logo"
+            onerror="this.style.display='none'">
+        <p>AQ-Z Light Controller · Ledstar RGBW Z III</p>
     </div>
 
     <div id="statusBar" class="status-bar disconnected">
@@ -626,7 +674,8 @@
                 <span class="slider-label">Brightness</span>
                 <span id="master-value" class="slider-value">100%</span>
             </div>
-            <input type="range" id="slider-master" min="0" max="100" value="100" oninput="onMasterChange(this.value)">
+            <input type="range" id="slider-master" min="0" max="100" value="100"
+                oninput="onMasterChange(this.value)">
         </div>
 
         <div class="section-title">🎨 Color Channels</div>
@@ -663,22 +712,30 @@
 
         <div class="section-title">🌿 Presets</div>
         <div class="presets-grid">
-            <button class="preset-btn full-btn" onclick="applyPreset(100,100,100,100)">⭐ Fully ON<div
-                    class="preset-colors">W100 B100 G100 R100</div></button>
-            <button class="preset-btn" onclick="applyPreset(90,100,100,90)">🌿 Green Plant<div class="preset-colors">W90
-                    B100 G100 R90</div></button>
-            <button class="preset-btn" onclick="applyPreset(100,90,90,100)">🍁 Red Plant<div class="preset-colors">W100
-                    B90 G90 R100</div></button>
-            <button class="preset-btn" onclick="applyPreset(90,90,90,75)">🌱 Moss<div class="preset-colors">W90 B90 G90
-                    R75</div></button>
-            <button class="preset-btn" onclick="applyPreset(100,100,80,100)">🪴 Bucephalandras<div
-                    class="preset-colors">W100 B100 G80 R100</div></button>
-            <button class="preset-btn" onclick="applyPreset(100,100,50,100)">🌊 Biotope<div class="preset-colors">W100
-                    B100 G50 R100</div></button>
-            <button class="preset-btn" onclick="applyPreset(90,100,100,100)">🌳 Rain Forest<div class="preset-colors">
-                    W90 B100 G100 R100</div></button>
-            <button class="preset-btn off-btn" onclick="applyPreset(0,0,0,0)">🌙 OFF<div class="preset-colors">All off
-                </div></button>
+            <button class="preset-btn full-btn" onclick="applyPreset(100,100,100,100)">⭐ Fully ON
+                <div class="preset-colors">W100 B100 G100 R100</div>
+            </button>
+            <button class="preset-btn" onclick="applyPreset(90,100,100,90)">🌿 Green Plant
+                <div class="preset-colors">W90 B100 G100 R90</div>
+            </button>
+            <button class="preset-btn" onclick="applyPreset(100,90,90,100)">🍁 Red Plant
+                <div class="preset-colors">W100 B90 G90 R100</div>
+            </button>
+            <button class="preset-btn" onclick="applyPreset(90,90,90,75)">🌱 Moss
+                <div class="preset-colors">W90 B90 G90 R75</div>
+            </button>
+            <button class="preset-btn" onclick="applyPreset(100,100,80,100)">🪴 Bucephalandras
+                <div class="preset-colors">W100 B100 G80 R100</div>
+            </button>
+            <button class="preset-btn" onclick="applyPreset(100,100,50,100)">🌊 Biotope
+                <div class="preset-colors">W100 B100 G50 R100</div>
+            </button>
+            <button class="preset-btn" onclick="applyPreset(90,100,100,100)">🌳 Rain Forest
+                <div class="preset-colors">W90 B100 G100 R100</div>
+            </button>
+            <button class="preset-btn off-btn" onclick="applyPreset(0,0,0,0)">🌙 OFF
+                <div class="preset-colors">All off</div>
+            </button>
         </div>
     </div>
 
@@ -688,15 +745,18 @@
         <div class="schedule-group">
             <div class="time-row">
                 <span class="time-label">🌅 Sunrise</span>
-                <input type="time" class="time-input" id="sunrise-time" value="08:00">
+                <input type="time" class="time-input" id="sunrise-time" value="08:00"
+                    onchange="drawFastCanvas()">
             </div>
             <div class="time-row">
                 <span class="time-label">🌇 Sunset</span>
-                <input type="time" class="time-input" id="sunset-time" value="18:00">
+                <input type="time" class="time-input" id="sunset-time" value="18:00"
+                    onchange="drawFastCanvas()">
             </div>
             <div class="time-row">
                 <span class="time-label">🔄 Fade (min)</span>
-                <input type="number" class="time-input" id="gradient-min" value="30" min="0" max="180" step="5">
+                <input type="number" class="time-input" id="gradient-min" value="30" min="0" max="180" step="5"
+                    onchange="drawFastCanvas()">
             </div>
         </div>
 
@@ -734,7 +794,7 @@
 
         <div class="section-title">📊 Preview</div>
         <div class="canvas-container">
-            <canvas id="fastCanvas" height="150"></canvas>
+            <canvas id="fastCanvas"></canvas>
             <div class="time-labels">
                 <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
             </div>
@@ -765,7 +825,7 @@
         </div>
 
         <div class="canvas-container">
-            <canvas id="proCanvas" height="250"></canvas>
+            <canvas id="proCanvas"></canvas>
             <div class="time-labels">
                 <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
             </div>
@@ -788,6 +848,13 @@
         <div id="log" class="log-content">Ready.\n</div>
     </div>
 
+    <!-- Footer -->
+    <div class="footer">
+        <p><a href="https://www.youtube.com/@akuarium_india" target="_blank">youtube.com/@akuarium_india</a></p>
+        <p>Open-source AQ-Z controller · Not affiliated with Ledstar</p>
+        <p class="india"><span class="flag">🇮🇳</span> Proudly made in India</p>
+    </div>
+
     <script>
         // ==========================================
         // BLE CONFIG
@@ -799,6 +866,10 @@
         const CMD_REALTIME = 0x10;
         const CMD_SCENE1 = 0x11;
         const CMD_SCENE2 = 0x14;
+
+        // Chunked write config (confirmed working)
+        const CHUNK_SIZE = 20;
+        const CHUNK_DELAY_MS = 50;
 
         // ==========================================
         // STATE
@@ -829,13 +900,8 @@
                 updateStatus('connecting', 'Searching...');
                 log('Scanning for BLE devices...', 'info');
                 bleDevice = await navigator.bluetooth.requestDevice({
-                    filters: [
-                        { namePrefix: 'AQ' }
-                    ],
-                    optionalServices: [
-                        0xFFF0,
-                        "0000fff0-0000-1000-8000-00805f9b34fb"
-                    ]
+                    filters: [{ namePrefix: 'AQ' }],
+                    optionalServices: [0xFFF0, "0000fff0-0000-1000-8000-00805f9b34fb"]
                 });
                 log(`Found: ${bleDevice.name}`, 'info');
                 bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
@@ -852,7 +918,10 @@
                     notifyCharacteristic = await service.getCharacteristic(NOTIFY_CHAR_UUID);
                     await notifyCharacteristic.startNotifications();
                     notifyCharacteristic.addEventListener('characteristicvaluechanged', onNotification);
-                } catch (e) { }
+                    log('Notifications on 0xFFF1 ready ✓', 'info');
+                } catch (e) {
+                    log('Notifications unavailable (non-critical)', 'error');
+                }
                 isConnected = true;
                 updateStatus('connected', `Connected: ${bleDevice.name}`);
                 updateConnectButton(true);
@@ -864,17 +933,34 @@
             }
         }
 
-        function disconnect() { if (bleDevice?.gatt.connected) bleDevice.gatt.disconnect(); onDisconnected(); }
-        function onDisconnected() { isConnected = false; writeCharacteristic = null; updateStatus('disconnected', 'Disconnected'); updateConnectButton(false); }
+        function disconnect() {
+            if (bleDevice?.gatt.connected) bleDevice.gatt.disconnect();
+            onDisconnected();
+        }
+
+        function onDisconnected() {
+            isConnected = false;
+            writeCharacteristic = null;
+            notifyCharacteristic = null;
+            updateStatus('disconnected', 'Disconnected');
+            updateConnectButton(false);
+            log('Disconnected', 'info');
+        }
+
         function onNotification(event) {
-            const hex = Array.from(new Uint8Array(event.target.value.buffer)).map(b => b.toString(16).padStart(2, '0')).join(' ');
+            const hex = Array.from(new Uint8Array(event.target.value.buffer))
+                .map(b => b.toString(16).padStart(2, '0')).join(' ');
             log(`← ${hex}`, 'info');
         }
 
         // ==========================================
         // COMMAND BUILDING
         // ==========================================
-        function checksum(arr) { let s = 0; for (let b of arr) s += b; return s & 0xFF; }
+        function checksum(arr) {
+            let s = 0;
+            for (let b of arr) s += b;
+            return s & 0xFF;
+        }
 
         function buildRealtimeCmd(w, b, g, r) {
             const now = new Date();
@@ -882,7 +968,8 @@
             const mb = Math.round(b * masterBrightness / 100);
             const mg = Math.round(g * masterBrightness / 100);
             const mr = Math.round(r * masterBrightness / 100);
-            const pkt = new Uint8Array([HEADER, 0x0B, CMD_REALTIME, now.getHours(), now.getMinutes(), mw, mb, mg, mr, 0x01, 0x00]);
+            const pkt = new Uint8Array([HEADER, 0x0B, CMD_REALTIME,
+                now.getHours(), now.getMinutes(), mw, mb, mg, mr, 0x01, 0x00]);
             pkt[pkt.length - 1] = checksum(pkt);
             return pkt;
         }
@@ -892,7 +979,8 @@
             const sh = Math.floor(startMin / 60), sm = startMin % 60;
             const eh = Math.floor(endMin / 60), em = endMin % 60;
             const grad = Math.floor((gradientMin * 2) / 60);
-            const pkt = new Uint8Array([HEADER, 0x10, CMD_SCENE1, now.getHours(), now.getMinutes(),
+            const pkt = new Uint8Array([HEADER, 0x10, CMD_SCENE1,
+                now.getHours(), now.getMinutes(),
                 sh, sm, eh, em, grad, w, b, g, r, 0x01, 0x00]);
             pkt[pkt.length - 1] = checksum(pkt);
             return pkt;
@@ -900,8 +988,7 @@
 
         function buildScene2Cmd(wArr, bArr, gArr, rArr) {
             const now = new Date();
-            const payloadLen = 242;
-            const totalLen = payloadLen + 4;
+            const totalLen = 246;
             const pkt = new Uint8Array(totalLen);
             pkt[0] = HEADER;
             pkt[1] = totalLen & 0xFF;
@@ -915,62 +1002,103 @@
                 pkt[149 + i] = Math.round(rArr[i]) & 0xFF;
             }
             for (let i = 197; i < totalLen - 1; i++) pkt[i] = 0x01;
+            pkt[totalLen - 1] = 0x00;
             pkt[totalLen - 1] = checksum(pkt);
             return pkt;
+        }
+
+        // ==========================================
+        // BLE SEND (with chunking for large packets)
+        // ==========================================
+        function sleep(ms) {
+            return new Promise(r => setTimeout(r, ms));
+        }
+
+        async function sendChunked(packet) {
+            const totalChunks = Math.ceil(packet.length / CHUNK_SIZE);
+            log(`→ Chunked send: ${packet.length}B in ${totalChunks} chunks`, 'info');
+
+            for (let i = 0; i < packet.length; i += CHUNK_SIZE) {
+                const end = Math.min(i + CHUNK_SIZE, packet.length);
+                const chunk = packet.slice(i, end);
+                const chunkNum = Math.floor(i / CHUNK_SIZE) + 1;
+
+                try {
+                    await writeCharacteristic.writeValueWithoutResponse(chunk.buffer);
+                } catch (e) {
+                    // Fallback: try writeValue legacy
+                    try {
+                        await writeCharacteristic.writeValue(chunk.buffer);
+                    } catch (e2) {
+                        log(`✗ Chunk ${chunkNum}/${totalChunks} failed: ${e2.message}`, 'error');
+                        return false;
+                    }
+                }
+
+                // Delay between chunks (skip after last)
+                if (end < packet.length) {
+                    await sleep(CHUNK_DELAY_MS);
+                }
+            }
+
+            log(`✓ All ${totalChunks} chunks sent`, 'info');
+            return true;
         }
 
         async function sendCommand(packet) {
             if (!isConnected || !writeCharacteristic) {
                 log('Not connected!', 'error');
-                return;
+                return false;
             }
 
             const hex = Array.from(packet).map(b =>
                 b.toString(16).padStart(2, '0')).join(' ');
-
             const hexShort = packet.length > 20
                 ? hex.substring(0, 60) + '...'
                 : hex;
 
-            // For ALL packet sizes, try methods in order
+            // Large packets: use chunked write
+            if (packet.length > CHUNK_SIZE) {
+                return await sendChunked(packet);
+            }
+
+            // Small packets: single write with fallback chain
             const methods = [
-                {
-                    name: 'writeValueWithResponse',
-                    fn: () => writeCharacteristic.writeValueWithResponse(packet.buffer)
-                },
-                {
-                    name: 'writeValueWithoutResponse',
-                    fn: () => writeCharacteristic.writeValueWithoutResponse(packet.buffer)
-                },
-                {
-                    name: 'writeValue (legacy)',
-                    fn: () => writeCharacteristic.writeValue(packet.buffer)
-                }
+                { name: 'writeValueWithResponse', fn: () => writeCharacteristic.writeValueWithResponse(packet.buffer) },
+                { name: 'writeValueWithoutResponse', fn: () => writeCharacteristic.writeValueWithoutResponse(packet.buffer) },
+                { name: 'writeValue', fn: () => writeCharacteristic.writeValue(packet.buffer) }
             ];
 
             for (const method of methods) {
                 try {
                     await method.fn();
-                    log(`→ [${method.name}] ${packet.length}B: ${hexShort}`);
-                    return;
+                    log(`→ ${packet.length}B: ${hexShort}`);
+                    return true;
                 } catch (e) {
-                    log(`${method.name} failed: ${e.message}`, 'error');
+                    // Try next method
                 }
             }
 
-            log('All methods failed!', 'error');
+            log('All write methods failed!', 'error');
+            return false;
         }
-
 
         // ==========================================
         // TABS
         // ==========================================
         function switchTab(name) {
-            document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['realtime', 'fast', 'pro'][i] === name));
+            document.querySelectorAll('.tab').forEach((t, i) =>
+                t.classList.toggle('active', ['realtime', 'fast', 'pro'][i] === name));
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             document.getElementById(`panel-${name}`).classList.add('active');
-            if (name === 'fast') { updateFastDisplay(); drawFastCanvas(); }
-            if (name === 'pro') drawProCanvas();
+            // Defer canvas drawing to after layout
+            if (name === 'fast') {
+                updateFastDisplay();
+                requestAnimationFrame(() => drawFastCanvas());
+            }
+            if (name === 'pro') {
+                requestAnimationFrame(() => drawProCanvas());
+            }
         }
 
         // ==========================================
@@ -981,113 +1109,222 @@
             channels.b = +document.getElementById('slider-b').value;
             channels.g = +document.getElementById('slider-g').value;
             channels.r = +document.getElementById('slider-r').value;
-            updateDisplay(); throttledSend();
+            updateDisplay();
+            throttledSend();
         }
-        function onMasterChange(val) { masterBrightness = +val; document.getElementById('master-value').textContent = val + '%'; throttledSend(); }
-        function throttledSend() { if (sendTimeout) clearTimeout(sendTimeout); sendTimeout = setTimeout(() => sendCommand(buildRealtimeCmd(channels.w, channels.b, channels.g, channels.r)), 50); }
+
+        function onMasterChange(val) {
+            masterBrightness = +val;
+            document.getElementById('master-value').textContent = val + '%';
+            throttledSend();
+        }
+
+        function throttledSend() {
+            if (sendTimeout) clearTimeout(sendTimeout);
+            sendTimeout = setTimeout(() =>
+                sendCommand(buildRealtimeCmd(channels.w, channels.b, channels.g, channels.r)), 50);
+        }
 
         function updateDisplay() {
             document.getElementById('val-w').textContent = channels.w + '%';
             document.getElementById('val-b').textContent = channels.b + '%';
             document.getElementById('val-g').textContent = channels.g + '%';
             document.getElementById('val-r').textContent = channels.r + '%';
-            const mw = channels.w * masterBrightness / 100, mb = channels.b * masterBrightness / 100;
-            const mg = channels.g * masterBrightness / 100, mr = channels.r * masterBrightness / 100;
-            const pR = Math.min(255, (mr / 100) * 255 + (mw / 100) * 200), pG = Math.min(255, (mg / 100) * 255 + (mw / 100) * 180), pB = Math.min(255, (mb / 100) * 255 + (mw / 100) * 160);
-            document.getElementById('colorPreview').style.backgroundColor = `rgb(${Math.round(pR)},${Math.round(pG)},${Math.round(pB)})`;
+            const mw = channels.w * masterBrightness / 100;
+            const mb = channels.b * masterBrightness / 100;
+            const mg = channels.g * masterBrightness / 100;
+            const mr = channels.r * masterBrightness / 100;
+            const pR = Math.min(255, (mr / 100) * 255 + (mw / 100) * 200);
+            const pG = Math.min(255, (mg / 100) * 255 + (mw / 100) * 180);
+            const pB = Math.min(255, (mb / 100) * 255 + (mw / 100) * 160);
+            document.getElementById('colorPreview').style.backgroundColor =
+                `rgb(${Math.round(pR)},${Math.round(pG)},${Math.round(pB)})`;
         }
 
         function applyPreset(w, b, g, r) {
             channels = { w, b, g, r };
-            document.getElementById('slider-w').value = w; document.getElementById('slider-b').value = b;
-            document.getElementById('slider-g').value = g; document.getElementById('slider-r').value = r;
-            updateDisplay(); sendCommand(buildRealtimeCmd(w, b, g, r));
+            document.getElementById('slider-w').value = w;
+            document.getElementById('slider-b').value = b;
+            document.getElementById('slider-g').value = g;
+            document.getElementById('slider-r').value = r;
+            updateDisplay();
+            sendCommand(buildRealtimeCmd(w, b, g, r));
             log(`Preset: W=${w} B=${b} G=${g} R=${r}`, 'info');
         }
-        function quickOn() { masterBrightness = 100; document.getElementById('slider-master').value = 100; document.getElementById('master-value').textContent = '100%'; applyPreset(100, 100, 100, 100); }
-        function quickOff() { applyPreset(0, 0, 0, 0); }
+
+        function quickOn() {
+            masterBrightness = 100;
+            document.getElementById('slider-master').value = 100;
+            document.getElementById('master-value').textContent = '100%';
+            applyPreset(100, 100, 100, 100);
+        }
+
+        function quickOff() {
+            applyPreset(0, 0, 0, 0);
+        }
 
         // ==========================================
         // FAST SETTING (Schedule)
         // ==========================================
         function updateFastDisplay() {
-            ['w', 'b', 'g', 'r'].forEach(c => document.getElementById(`fast-val-${c}`).textContent = document.getElementById(`fast-${c}`).value + '%');
+            ['w', 'b', 'g', 'r'].forEach(c =>
+                document.getElementById(`fast-val-${c}`).textContent =
+                document.getElementById(`fast-${c}`).value + '%');
             drawFastCanvas();
         }
 
         function drawFastCanvas() {
             const canvas = document.getElementById('fastCanvas');
-            canvas.width = canvas.offsetWidth * 2; canvas.height = 300;
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width === 0) return; // Panel not visible yet
+
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+
             const ctx = canvas.getContext('2d');
-            const W = canvas.width, H = canvas.height;
+            ctx.scale(dpr, dpr);
+
+            const W = rect.width;
+            const H = rect.height;
+            const pad = 8;
+
             ctx.clearRect(0, 0, W, H);
 
+            // Parse schedule params
             const sunrise = document.getElementById('sunrise-time').value || '08:00';
             const sunset = document.getElementById('sunset-time').value || '18:00';
             const grad = +(document.getElementById('gradient-min').value || 30);
-            const [sh, sm] = sunrise.split(':').map(Number), [eh, em] = sunset.split(':').map(Number);
-            const startMin = sh * 60 + sm, endMin = eh * 60 + em;
+            const [sh, sm] = sunrise.split(':').map(Number);
+            const [eh, em] = sunset.split(':').map(Number);
+            const startMin = sh * 60 + sm;
+            const endMin = eh * 60 + em;
 
+            // Grid first (behind curves)
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 1;
+            for (let h = 0; h <= 24; h += 6) {
+                const x = pad + (h / 24) * (W - 2 * pad);
+                ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, H - pad); ctx.stroke();
+            }
+            for (let p = 0; p <= 100; p += 25) {
+                const y = pad + ((100 - p) / 100) * (H - 2 * pad);
+                ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - pad, y); ctx.stroke();
+                ctx.fillStyle = '#444';
+                ctx.font = '10px sans-serif';
+                ctx.fillText(p + '%', pad + 2, y - 2);
+            }
+
+            // Draw curves
             const colors = { w: '#fff5e0', b: '#4488ff', g: '#44cc44', r: '#ff4444' };
-            ['w', 'b', 'g', 'r'].forEach(ch => {
+            const drawOrder = ['r', 'g', 'b', 'w'];
+
+            drawOrder.forEach(ch => {
                 const val = +document.getElementById(`fast-${ch}`).value;
-                ctx.beginPath(); ctx.strokeStyle = colors[ch]; ctx.lineWidth = 3;
-                for (let x = 0; x < W; x++) {
-                    const min = (x / W) * 1440;
+                if (val === 0) return;
+
+                ctx.beginPath();
+                ctx.strokeStyle = colors[ch];
+                ctx.lineWidth = 2.5;
+
+                const steps = Math.floor(W);
+                for (let px = 0; px < steps; px++) {
+                    const min = (px / steps) * 1440;
                     let brightness = 0;
                     if (min >= startMin && min <= endMin) {
-                        if (min < startMin + grad) brightness = val * ((min - startMin) / grad);
-                        else if (min > endMin - grad) brightness = val * ((endMin - min) / grad);
-                        else brightness = val;
+                        if (grad > 0 && min < startMin + grad) {
+                            brightness = val * ((min - startMin) / grad);
+                        } else if (grad > 0 && min > endMin - grad) {
+                            brightness = val * ((endMin - min) / grad);
+                        } else {
+                            brightness = val;
+                        }
                     }
-                    const y = H - (brightness / 100) * H;
-                    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                    const x = pad + (px / steps) * (W - 2 * pad);
+                    const y = pad + ((100 - brightness) / 100) * (H - 2 * pad);
+                    px === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
                 }
                 ctx.stroke();
+
+                // Fill under curve
+                ctx.lineTo(pad + (W - 2 * pad), H - pad);
+                ctx.lineTo(pad, H - pad);
+                ctx.closePath();
+                ctx.fillStyle = colors[ch] + '15';
+                ctx.fill();
             });
 
-            // Grid
-            ctx.strokeStyle = '#333'; ctx.lineWidth = 1;
-            for (let h = 0; h <= 24; h += 6) { const x = (h / 24) * W; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-            for (let p = 0; p <= 100; p += 25) { const y = H - (p / 100) * H; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+            // Current time marker
+            const now = new Date();
+            const nowMin = now.getHours() * 60 + now.getMinutes();
+            const nowX = pad + (nowMin / 1440) * (W - 2 * pad);
+            ctx.strokeStyle = '#ffffff55';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.moveTo(nowX, pad); ctx.lineTo(nowX, H - pad); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#fff';
+            ctx.font = '9px sans-serif';
+            ctx.fillText('now', nowX - 8, H - 1);
         }
 
         function saveFastSchedule() {
             const sunrise = document.getElementById('sunrise-time').value || '08:00';
             const sunset = document.getElementById('sunset-time').value || '18:00';
             const grad = +(document.getElementById('gradient-min').value || 30);
-            const [sh, sm] = sunrise.split(':').map(Number), [eh, em] = sunset.split(':').map(Number);
-            const w = +document.getElementById('fast-w').value, b = +document.getElementById('fast-b').value;
-            const g = +document.getElementById('fast-g').value, r = +document.getElementById('fast-r').value;
-            const startMin = sh * 60 + sm, endMin = eh * 60 + em;
+            const [sh, sm] = sunrise.split(':').map(Number);
+            const [eh, em] = sunset.split(':').map(Number);
+            const w = +document.getElementById('fast-w').value;
+            const b = +document.getElementById('fast-b').value;
+            const g = +document.getElementById('fast-g').value;
+            const r = +document.getElementById('fast-r').value;
+            const startMin = sh * 60 + sm;
+            const endMin = eh * 60 + em;
             const pkt = buildScene1Cmd(w, b, g, r, startMin, endMin, grad);
             sendCommand(pkt);
             log(`📅 Schedule saved: ${sunrise}-${sunset}, fade=${grad}min, W=${w} B=${b} G=${g} R=${r}`, 'info');
         }
 
         function previewFastSchedule() {
-            if (previewInterval) { clearInterval(previewInterval); previewInterval = null; log('Preview stopped', 'info'); return; }
+            if (previewInterval) {
+                clearInterval(previewInterval);
+                previewInterval = null;
+                log('Preview stopped', 'info');
+                return;
+            }
             const sunrise = document.getElementById('sunrise-time').value || '08:00';
             const sunset = document.getElementById('sunset-time').value || '18:00';
             const grad = +(document.getElementById('gradient-min').value || 30);
-            const [sh, sm] = sunrise.split(':').map(Number), [eh, em] = sunset.split(':').map(Number);
-            const startMin = sh * 60 + sm, endMin = eh * 60 + em;
-            const fw = +document.getElementById('fast-w').value, fb = +document.getElementById('fast-b').value;
-            const fg = +document.getElementById('fast-g').value, fr = +document.getElementById('fast-r').value;
+            const [sh, sm] = sunrise.split(':').map(Number);
+            const [eh, em] = sunset.split(':').map(Number);
+            const startMin = sh * 60 + sm;
+            const endMin = eh * 60 + em;
+            const fw = +document.getElementById('fast-w').value;
+            const fb = +document.getElementById('fast-b').value;
+            const fg = +document.getElementById('fast-g').value;
+            const fr = +document.getElementById('fast-r').value;
 
             let step = 0;
-            const totalSteps = 60; // 60 seconds for full day
+            const totalSteps = 60;
             log('👁️ Preview: simulating 24h in 60 seconds...', 'info');
             previewInterval = setInterval(() => {
-                if (step >= totalSteps) { clearInterval(previewInterval); previewInterval = null; log('Preview complete', 'info'); return; }
+                if (step >= totalSteps) {
+                    clearInterval(previewInterval);
+                    previewInterval = null;
+                    log('Preview complete', 'info');
+                    return;
+                }
                 const min = (step / totalSteps) * 1440;
                 let brightness = 0;
                 if (min >= startMin && min <= endMin) {
-                    if (min < startMin + grad) brightness = (min - startMin) / grad;
-                    else if (min > endMin - grad) brightness = (endMin - min) / grad;
+                    if (grad > 0 && min < startMin + grad) brightness = (min - startMin) / grad;
+                    else if (grad > 0 && min > endMin - grad) brightness = (endMin - min) / grad;
                     else brightness = 1;
                 }
-                const w = Math.round(fw * brightness), b = Math.round(fb * brightness), g = Math.round(fg * brightness), r = Math.round(fr * brightness);
+                const w = Math.round(fw * brightness);
+                const b = Math.round(fb * brightness);
+                const g = Math.round(fg * brightness);
+                const r = Math.round(fr * brightness);
                 sendCommand(buildRealtimeCmd(w, b, g, r));
                 step++;
             }, 1000);
@@ -1105,28 +1342,51 @@
 
         function drawProCanvas() {
             const canvas = document.getElementById('proCanvas');
-            canvas.width = canvas.offsetWidth * 2; canvas.height = 500;
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width === 0) return;
+
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+
             const ctx = canvas.getContext('2d');
-            const W = canvas.width, H = canvas.height, pad = 10;
+            ctx.scale(dpr, dpr);
+
+            const W = rect.width;
+            const H = rect.height;
+            const pad = 10;
 
             ctx.clearRect(0, 0, W, H);
 
             // Grid
-            ctx.strokeStyle = '#222'; ctx.lineWidth = 1;
-            for (let h = 0; h <= 24; h += 2) { const x = pad + (h / 24) * (W - 2 * pad); ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, H - pad); ctx.stroke(); }
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 1;
+            for (let h = 0; h <= 24; h += 2) {
+                const x = pad + (h / 24) * (W - 2 * pad);
+                ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, H - pad); ctx.stroke();
+            }
             for (let p = 0; p <= 100; p += 25) {
-                const y = pad + ((100 - p) / 100) * (H - 2 * pad); ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - pad, y); ctx.stroke();
-                ctx.fillStyle = '#444'; ctx.font = '18px sans-serif'; ctx.fillText(p + '%', pad + 2, y - 4);
+                const y = pad + ((100 - p) / 100) * (H - 2 * pad);
+                ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - pad, y); ctx.stroke();
+                ctx.fillStyle = '#444';
+                ctx.font = '10px sans-serif';
+                ctx.fillText(p + '%', pad + 2, y - 2);
             }
 
             const colors = { w: '#fff5e0', b: '#4488ff', g: '#44cc44', r: '#ff4444' };
-            const alphas = { w: 0.3, b: 0.3, g: 0.3, r: 0.3 };
-            alphas[activeProChannel] = 1;
 
-            // Draw all channels
-            ['w', 'b', 'g', 'r'].forEach(ch => {
-                ctx.globalAlpha = alphas[ch];
-                ctx.beginPath(); ctx.strokeStyle = colors[ch]; ctx.lineWidth = ch === activeProChannel ? 4 : 2;
+            // Draw inactive channels first, active on top
+            const drawOrder = ['w', 'b', 'g', 'r'].filter(c => c !== activeProChannel);
+            drawOrder.push(activeProChannel);
+
+            drawOrder.forEach(ch => {
+                const isActive = ch === activeProChannel;
+                ctx.globalAlpha = isActive ? 1 : 0.25;
+                ctx.strokeStyle = colors[ch];
+                ctx.lineWidth = isActive ? 3 : 1.5;
+
+                // Line
+                ctx.beginPath();
                 for (let i = 0; i < 48; i++) {
                     const x = pad + (i / 47) * (W - 2 * pad);
                     const y = pad + ((100 - proSchedule[ch][i]) / 100) * (H - 2 * pad);
@@ -1134,16 +1394,42 @@
                 }
                 ctx.stroke();
 
-                // Draw dots for active channel
-                if (ch === activeProChannel) {
+                // Fill under curve for active channel
+                if (isActive) {
+                    const lastX = pad + (47 / 47) * (W - 2 * pad);
+                    ctx.lineTo(lastX, H - pad);
+                    ctx.lineTo(pad, H - pad);
+                    ctx.closePath();
+                    ctx.fillStyle = colors[ch] + '18';
+                    ctx.fill();
+                }
+
+                // Dots for active channel
+                if (isActive) {
                     for (let i = 0; i < 48; i++) {
                         const x = pad + (i / 47) * (W - 2 * pad);
                         const y = pad + ((100 - proSchedule[ch][i]) / 100) * (H - 2 * pad);
-                        ctx.beginPath(); ctx.fillStyle = colors[ch]; ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
+                        ctx.beginPath();
+                        ctx.fillStyle = colors[ch];
+                        ctx.arc(x, y, 4, 0, Math.PI * 2);
+                        ctx.fill();
                     }
                 }
             });
             ctx.globalAlpha = 1;
+
+            // Current time marker
+            const now = new Date();
+            const nowMin = now.getHours() * 60 + now.getMinutes();
+            const nowX = pad + (nowMin / 1440) * (W - 2 * pad);
+            ctx.strokeStyle = '#ffffff55';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.moveTo(nowX, pad); ctx.lineTo(nowX, H - pad); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#fff';
+            ctx.font = '9px sans-serif';
+            ctx.fillText('now', nowX - 8, H - 1);
         }
 
         // Touch/mouse handling for pro canvas
@@ -1153,56 +1439,141 @@
 
             function getPos(e) {
                 const rect = canvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
                 const touch = e.touches ? e.touches[0] : e;
-                const scaleX = canvas.width / rect.width;
-                const scaleY = canvas.height / rect.height;
-                return { x: (touch.clientX - rect.left) * scaleX, y: (touch.clientY - rect.top) * scaleY };
+                // Work in CSS coordinates, not canvas pixel coordinates
+                return {
+                    x: touch.clientX - rect.left,
+                    y: touch.clientY - rect.top
+                };
             }
 
             function updatePoint(pos) {
-                const pad = 10, W = canvas.width, H = canvas.height;
+                const rect = canvas.getBoundingClientRect();
+                const W = rect.width;
+                const H = rect.height;
+                const pad = 10;
+
                 const ratio = (pos.x - pad) / (W - 2 * pad);
                 const index = Math.round(ratio * 47);
                 if (index < 0 || index > 47) return;
+
                 const val = 100 - ((pos.y - pad) / (H - 2 * pad)) * 100;
                 proSchedule[activeProChannel][index] = Math.max(0, Math.min(100, Math.round(val)));
                 drawProCanvas();
             }
 
-            canvas.addEventListener('mousedown', e => { drawing = true; updatePoint(getPos(e)); });
-            canvas.addEventListener('mousemove', e => { if (drawing) updatePoint(getPos(e)); });
-            canvas.addEventListener('mouseup', () => drawing = false);
-            canvas.addEventListener('mouseleave', () => drawing = false);
+            // Fill gaps when dragging fast
+            let lastIndex = -1;
 
-            canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; updatePoint(getPos(e)); }, { passive: false });
-            canvas.addEventListener('touchmove', e => { e.preventDefault(); if (drawing) updatePoint(getPos(e)); }, { passive: false });
-            canvas.addEventListener('touchend', () => drawing = false);
+            function updatePointWithInterp(pos) {
+                const rect = canvas.getBoundingClientRect();
+                const W = rect.width;
+                const H = rect.height;
+                const pad = 10;
+
+                const ratio = (pos.x - pad) / (W - 2 * pad);
+                const index = Math.round(ratio * 47);
+                if (index < 0 || index > 47) return;
+
+                const val = Math.max(0, Math.min(100,
+                    Math.round(100 - ((pos.y - pad) / (H - 2 * pad)) * 100)));
+
+                // Interpolate between last and current if gap > 1
+                if (lastIndex >= 0 && Math.abs(index - lastIndex) > 1) {
+                    const startIdx = Math.min(lastIndex, index);
+                    const endIdx = Math.max(lastIndex, index);
+                    const startVal = proSchedule[activeProChannel][lastIndex];
+                    const endVal = val;
+                    for (let i = startIdx; i <= endIdx; i++) {
+                        const t = (i - lastIndex) / (index - lastIndex);
+                        proSchedule[activeProChannel][i] =
+                            Math.max(0, Math.min(100, Math.round(startVal + t * (endVal - startVal))));
+                    }
+                } else {
+                    proSchedule[activeProChannel][index] = val;
+                }
+
+                lastIndex = index;
+                drawProCanvas();
+            }
+
+            canvas.addEventListener('mousedown', e => {
+                drawing = true;
+                lastIndex = -1;
+                updatePointWithInterp(getPos(e));
+            });
+            canvas.addEventListener('mousemove', e => {
+                if (drawing) updatePointWithInterp(getPos(e));
+            });
+            canvas.addEventListener('mouseup', () => { drawing = false; lastIndex = -1; });
+            canvas.addEventListener('mouseleave', () => { drawing = false; lastIndex = -1; });
+
+            canvas.addEventListener('touchstart', e => {
+                e.preventDefault();
+                drawing = true;
+                lastIndex = -1;
+                updatePointWithInterp(getPos(e));
+            }, { passive: false });
+            canvas.addEventListener('touchmove', e => {
+                e.preventDefault();
+                if (drawing) updatePointWithInterp(getPos(e));
+            }, { passive: false });
+            canvas.addEventListener('touchend', () => { drawing = false; lastIndex = -1; });
         }
 
-        function saveProSchedule() {
+        async function saveProSchedule() {
             const pkt = buildScene2Cmd(proSchedule.w, proSchedule.b, proSchedule.g, proSchedule.r);
-            sendCommand(pkt);
-            log(`📊 Pro schedule saved! (${pkt.length} bytes)`, 'info');
-            // Also save to localStorage
-            localStorage.setItem('aqz_pro_schedule', JSON.stringify(proSchedule));
+            log(`📊 Sending pro schedule (${pkt.length} bytes, chunked ${CHUNK_SIZE}B)...`, 'info');
+            const success = await sendCommand(pkt);
+            if (success) {
+                log('📊 Pro schedule saved to light! ✓', 'info');
+                // Save to localStorage as backup
+                localStorage.setItem('aqz_pro_schedule', JSON.stringify(proSchedule));
+            } else {
+                log('📊 Pro schedule send failed!', 'error');
+            }
         }
 
         function previewProSchedule() {
-            if (previewInterval) { clearInterval(previewInterval); previewInterval = null; log('Preview stopped', 'info'); return; }
+            if (previewInterval) {
+                clearInterval(previewInterval);
+                previewInterval = null;
+                log('Preview stopped', 'info');
+                return;
+            }
             let step = 0;
             const totalSteps = 60;
             log('👁️ Pro Preview: 24h in 60 seconds...', 'info');
             previewInterval = setInterval(() => {
-                if (step >= totalSteps) { clearInterval(previewInterval); previewInterval = null; log('Preview complete', 'info'); return; }
-                const idx = Math.floor((step / totalSteps) * 48);
-                const i = Math.min(idx, 47);
-                sendCommand(buildRealtimeCmd(proSchedule.w[i], proSchedule.b[i], proSchedule.g[i], proSchedule.r[i]));
+                if (step >= totalSteps) {
+                    clearInterval(previewInterval);
+                    previewInterval = null;
+                    log('Preview complete', 'info');
+                    return;
+                }
+                const frac = step / totalSteps;
+                // Interpolate between time slots for smooth preview
+                const slot = frac * 47;
+                const idx = Math.floor(slot);
+                const t = slot - idx;
+                const nextIdx = Math.min(idx + 1, 47);
+                const w = Math.round(proSchedule.w[idx] + t * (proSchedule.w[nextIdx] - proSchedule.w[idx]));
+                const b = Math.round(proSchedule.b[idx] + t * (proSchedule.b[nextIdx] - proSchedule.b[idx]));
+                const g = Math.round(proSchedule.g[idx] + t * (proSchedule.g[nextIdx] - proSchedule.g[idx]));
+                const r = Math.round(proSchedule.r[idx] + t * (proSchedule.r[nextIdx] - proSchedule.r[idx]));
+                sendCommand(buildRealtimeCmd(w, b, g, r));
                 step++;
             }, 1000);
         }
 
         function resetProSchedule() {
-            proSchedule = { w: new Array(48).fill(0), b: new Array(48).fill(0), g: new Array(48).fill(0), r: new Array(48).fill(0) };
+            proSchedule = {
+                w: new Array(48).fill(0),
+                b: new Array(48).fill(0),
+                g: new Array(48).fill(0),
+                r: new Array(48).fill(0)
+            };
             drawProCanvas();
             log('Pro schedule cleared', 'info');
         }
@@ -1220,19 +1591,26 @@
                 proSchedule.w[i] = Math.round(val);
                 proSchedule.b[i] = Math.round(val * 0.9);
                 proSchedule.g[i] = Math.round(val);
-                proSchedule.r[i] = Math.round(hour >= 16 && hour <= 19 ? val * 1.1 : val * 0.8);
-                proSchedule.r[i] = Math.min(100, proSchedule.r[i]);
+                proSchedule.r[i] = Math.min(100, Math.round(
+                    hour >= 16 && hour <= 19 ? val * 1.1 : val * 0.8));
             }
-            drawProCanvas(); log('Natural preset loaded', 'info');
+            drawProCanvas();
+            log('Natural preset loaded', 'info');
         }
+
         function proPresetFlat() {
             for (let i = 0; i < 48; i++) {
                 const hour = i * 0.5;
                 const val = (hour >= 8 && hour <= 18) ? 80 : 0;
-                proSchedule.w[i] = val; proSchedule.b[i] = val; proSchedule.g[i] = val; proSchedule.r[i] = val;
+                proSchedule.w[i] = val;
+                proSchedule.b[i] = val;
+                proSchedule.g[i] = val;
+                proSchedule.r[i] = val;
             }
-            drawProCanvas(); log('Flat 80% preset loaded', 'info');
+            drawProCanvas();
+            log('Flat 80% preset loaded', 'info');
         }
+
         function proPresetDawn() {
             for (let i = 0; i < 48; i++) {
                 const hour = i * 0.5;
@@ -1246,36 +1624,74 @@
                 proSchedule.g[i] = Math.round(val * 0.9);
                 proSchedule.r[i] = Math.round(val * 0.85);
             }
-            drawProCanvas(); log('Dawn-Dusk preset loaded', 'info');
+            drawProCanvas();
+            log('Dawn-Dusk preset loaded', 'info');
         }
+
         function proPresetClear() {
             proSchedule[activeProChannel] = new Array(48).fill(0);
-            drawProCanvas(); log(`${activeProChannel.toUpperCase()} channel cleared`, 'info');
+            drawProCanvas();
+            log(`${activeProChannel.toUpperCase()} channel cleared`, 'info');
         }
 
         // ==========================================
         // UI HELPERS
         // ==========================================
-        function updateStatus(state, text) { const bar = document.getElementById('statusBar'); bar.className = `status-bar ${state}`; document.getElementById('statusText').textContent = text; }
-        function updateConnectButton(connected) { const btn = document.getElementById('connectBtn'); btn.className = connected ? 'connect-btn disconnect' : 'connect-btn connect'; btn.textContent = connected ? '🔌 Disconnect' : '🔗 Connect to AQ-Z'; }
-        function log(msg, type = '') { const el = document.getElementById('log'); const t = new Date().toLocaleTimeString(); el.innerHTML += `<span${type ? ` class="${type}"` : ``}>[${t}] ${msg}\n</span>`; el.scrollTop = el.scrollHeight; }
+        function updateStatus(state, text) {
+            const bar = document.getElementById('statusBar');
+            bar.className = `status-bar ${state}`;
+            document.getElementById('statusText').textContent = text;
+        }
+
+        function updateConnectButton(connected) {
+            const btn = document.getElementById('connectBtn');
+            btn.className = connected ? 'connect-btn disconnect' : 'connect-btn connect';
+            btn.textContent = connected ? '🔌 Disconnect' : '🔗 Connect to AQ-Z';
+        }
+
+        function log(msg, type = '') {
+            const el = document.getElementById('log');
+            const t = new Date().toLocaleTimeString();
+            el.innerHTML += `<span${type ? ` class="${type}"` : ''}>[${t}] ${msg}\n</span>`;
+            el.scrollTop = el.scrollHeight;
+        }
 
         // ==========================================
         // INIT
         // ==========================================
         window.addEventListener('load', () => {
-            if (!navigator.bluetooth) { log('❌ Web Bluetooth not supported! Use Chrome.', 'error'); document.getElementById('connectBtn').disabled = true; }
-            else log('✅ Web Bluetooth supported', 'info');
+            if (!navigator.bluetooth) {
+                log('❌ Web Bluetooth not supported! Use Chrome on Android or Windows.', 'error');
+                document.getElementById('connectBtn').disabled = true;
+            } else {
+                log('✅ Web Bluetooth supported', 'info');
+            }
 
             // Load saved pro schedule
             const saved = localStorage.getItem('aqz_pro_schedule');
-            if (saved) { try { proSchedule = JSON.parse(saved); log('Loaded saved pro schedule', 'info'); } catch (e) { } }
+            if (saved) {
+                try {
+                    proSchedule = JSON.parse(saved);
+                    log('Loaded saved pro schedule from storage', 'info');
+                } catch (e) { }
+            }
 
             updateDisplay();
-            setTimeout(() => { drawFastCanvas(); initProCanvas(); drawProCanvas(); }, 100);
+            setTimeout(() => {
+                drawFastCanvas();
+                initProCanvas();
+                drawProCanvas();
+            }, 100);
 
             // Redraw on resize
-            window.addEventListener('resize', () => { drawFastCanvas(); drawProCanvas(); });
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    drawFastCanvas();
+                    drawProCanvas();
+                }, 150);
+            });
         });
     </script>
 </body>
